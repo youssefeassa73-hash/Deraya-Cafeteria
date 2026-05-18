@@ -2,6 +2,7 @@
 const SANITY_PROJECT_ID = 'ksse299y';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2021-06-07';
+const SANITY_WRITE_TOKEN = ''; // Paste your Sanity API token (with WRITE editor access) here to save orders to the dashboard!
 
 function sanityQuery(query) {
     const encodedQuery = encodeURIComponent(query);
@@ -124,26 +125,56 @@ window.closeCart = function() {
 };
 
 // Process Checkout & Generate Order Receipt
-window.processCheckout = function() {
+window.processCheckout = async function() {
     if (cart.length === 0) return;
+    
+    // Read and validate customer Name & Phone
+    const nameInput = document.getElementById('cust-name');
+    const phoneInput = document.getElementById('cust-phone');
+    
+    const customerName = nameInput.value.trim();
+    const customerPhone = phoneInput.value.trim();
+    
+    // Simple visual validation validation
+    let isValid = true;
+    if (!customerName) {
+        nameInput.style.borderColor = '#ef4444';
+        isValid = false;
+    } else {
+        nameInput.style.borderColor = '';
+    }
+    
+    if (!customerPhone) {
+        phoneInput.style.borderColor = '#ef4444';
+        isValid = false;
+    } else {
+        phoneInput.style.borderColor = '';
+    }
+    
+    if (!isValid) {
+        alert('من فضلك أدخل الاسم ورقم الهاتف لتأكيد طلبك! (Please enter your name and phone number)');
+        return;
+    }
     
     // Generate unique random 4-digit order number
     const orderNumber = Math.floor(1000 + Math.random() * 9000);
     
-    // Render receipt details
-    const receiptDetails = document.getElementById('receipt-details');
+    // Build ordered items string text for receipt details and Sanity database representation
     let receiptHTML = '<h4 style="margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">تفاصيل الطلب:</h4>';
+    let itemsText = '';
     let grandTotal = 0;
     
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
         grandTotal += itemTotal;
+        
         receiptHTML += `
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.9rem;">
                 <span>${item.displayName} × ${item.quantity}</span>
                 <span>${itemTotal} EGP</span>
             </div>
         `;
+        itemsText += `${item.displayName} × ${item.quantity} (${itemTotal} EGP)\n`;
     });
     
     receiptHTML += `
@@ -153,8 +184,48 @@ window.processCheckout = function() {
         </div>
     `;
     
+    const receiptDetails = document.getElementById('receipt-details');
     receiptDetails.innerHTML = receiptHTML;
     document.getElementById('receipt-order-number').innerText = `#${orderNumber}`;
+    
+    // Write order data to Sanity dashboard
+    if (SANITY_WRITE_TOKEN) {
+        const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+        const orderDoc = {
+            mutations: [
+                {
+                    create: {
+                        _type: 'order',
+                        orderNumber: String(orderNumber),
+                        customerName: customerName,
+                        customerPhone: customerPhone,
+                        items: itemsText,
+                        totalPrice: grandTotal,
+                        status: 'not_confirmed',
+                        createdAt: new Date().toISOString()
+                    }
+                }
+            ]
+        };
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+            },
+            body: JSON.stringify(orderDoc)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Order logged in Sanity successfully:', data);
+        })
+        .catch(err => {
+            console.error('Error saving order to Sanity:', err);
+        });
+    } else {
+        console.warn('SANITY_WRITE_TOKEN is missing. Order logged locally only.');
+    }
     
     // Toggle screens inside the modal
     document.getElementById('cart-view').style.display = 'none';
@@ -165,8 +236,116 @@ window.processCheckout = function() {
     updateCartUI();
 };
 
+// Download Printable PDF Receipt Helper
+window.downloadReceiptPDF = function() {
+    const orderNum = document.getElementById('receipt-order-number').innerText;
+    const name = document.getElementById('cust-name').value || 'عميل';
+    const phone = document.getElementById('cust-phone').value || '';
+    const detailsHTML = document.getElementById('receipt-details').innerHTML;
+    
+    const printWindow = window.open('', '_blank', 'width=600,height=800');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Deraya Cafeteria - Receipt ${orderNum}</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 20px;
+                    direction: rtl;
+                    text-align: center;
+                    color: #111;
+                    max-width: 320px;
+                    margin: 0 auto;
+                }
+                .header {
+                    border-bottom: 2px dashed #ccc;
+                    padding-bottom: 15px;
+                    margin-bottom: 15px;
+                }
+                .logo {
+                    font-size: 1.6rem;
+                    font-weight: 800;
+                    margin-bottom: 5px;
+                }
+                .order-num {
+                    font-size: 2.2rem;
+                    font-weight: 800;
+                    margin: 10px 0;
+                    background-color: #f3f4f6;
+                    padding: 8px;
+                    border-radius: 4px;
+                }
+                .cust-info {
+                    text-align: right;
+                    font-size: 0.85rem;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
+                    line-height: 1.5;
+                }
+                .details {
+                    text-align: right;
+                    font-size: 0.9rem;
+                    line-height: 1.6;
+                }
+                .notice {
+                    background-color: #fef2f2;
+                    border: 1px solid #fee2e2;
+                    border-radius: 6px;
+                    color: #b91c1c;
+                    padding: 8px;
+                    margin-top: 15px;
+                    font-size: 0.85rem;
+                    font-weight: bold;
+                }
+                .footer {
+                    margin-top: 20px;
+                    font-size: 0.85rem;
+                    color: #666;
+                    border-top: 2px dashed #ccc;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="logo">Deraya Cafeteria</div>
+                <div style="font-size: 0.85rem; color: #666;">فاتورة طلب رقم:</div>
+                <div class="order-num">${orderNum}</div>
+                <div style="font-size: 0.75rem; color: #666;">التاريخ: ${new Date().toLocaleString('ar-EG')}</div>
+            </div>
+            <div class="cust-info">
+                <strong>العميل الكريم:</strong> ${name}<br>
+                <strong>رقم الجوال:</strong> ${phone}
+            </div>
+            <div class="details">
+                ${detailsHTML}
+            </div>
+            <div class="notice">
+                ⚠️ يجب دفع هذه الفاتورة عند الكاشير لتأكيد الطلب وبدء التحضير فوراً!
+            </div>
+            <div class="footer">
+                شكرًا لزيارتكم! بالهناء والشفاء ☕🍔
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 500);
+                }
+            </scrip` + `t>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+};
+
 // Reset screen for a new order
 window.resetNewOrder = function() {
+    // Reset Name and Phone inputs
+    document.getElementById('cust-name').value = '';
+    document.getElementById('cust-phone').value = '';
+    
     document.getElementById('receipt-view').style.display = 'none';
     document.getElementById('cart-view').style.display = 'block';
     closeCart();
