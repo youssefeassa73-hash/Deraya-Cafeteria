@@ -9,21 +9,179 @@ function sanityQuery(query) {
     return fetch(url).then(res => res.json()).then(data => data.result);
 }
 
-// Global function to toggle collapsible menu sections
-window.toggleSection = function(id) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.classList.toggle('collapsed');
-        const chevron = el.querySelector('.chevron');
-        if (chevron) {
-            chevron.innerText = el.classList.contains('collapsed') ? '▼' : '▲';
-        }
+// ---- CART SYSTEM STATE & CONTROLS ----
+let cart = JSON.parse(localStorage.getItem('cafeteria_cart')) || [];
+
+// Initialize or update the cart on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadContent();
+    updateCartUI();
+});
+
+// Update the Cart count, totals, and dropdown list in the modal
+function updateCartUI() {
+    localStorage.setItem('cafeteria_cart', JSON.stringify(cart));
+    
+    // Update float button count
+    const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-count').innerText = totalQty;
+    
+    // Update items inside modal list
+    const cartItemsList = document.getElementById('cart-items-list');
+    const totalPriceSpan = document.getElementById('cart-total-price');
+    
+    if (cart.length === 0) {
+        cartItemsList.innerHTML = '<p style="text-align: center; color: var(--text-light); margin: 2rem 0;">السلة فارغة حالياً</p>';
+        totalPriceSpan.innerText = '0 EGP';
+        return;
+    }
+    
+    let listHTML = '';
+    let grandTotal = 0;
+    
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        grandTotal += itemTotal;
+        
+        listHTML += `
+            <div class="cart-item-row" dir="rtl">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.displayName}</div>
+                    <div class="cart-item-price">${item.price} EGP</div>
+                </div>
+                <div class="cart-item-actions">
+                    <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                    <span style="font-weight: 700; min-width: 20px; text-align: center;">${item.quantity}</span>
+                    <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    cartItemsList.innerHTML = listHTML;
+    totalPriceSpan.innerText = `${grandTotal} EGP`;
+}
+
+// Add item to cart with selected bread options (if applicable)
+window.addToCart = function(itemId, name, price, btnElement) {
+    // Find optional bread selection inside the card
+    const card = btnElement.closest('.card');
+    const select = card.querySelector('.bread-select');
+    let optionText = '';
+    if (select) {
+        optionText = select.value;
+    }
+    
+    const displayName = optionText ? `${name} (${optionText})` : name;
+    
+    // Check if matching item exists in cart
+    const existingIndex = cart.findIndex(item => item.displayName === displayName);
+    
+    if (existingIndex > -1) {
+        cart[existingIndex].quantity += 1;
+    } else {
+        cart.push({
+            itemId: itemId,
+            displayName: displayName,
+            price: price,
+            quantity: 1
+        });
+    }
+    
+    updateCartUI();
+    
+    // Micro-interaction button feedback
+    const originalText = btnElement.innerText;
+    btnElement.innerText = 'تم الإضافة ✓';
+    btnElement.style.backgroundColor = '#10b981'; // Green feedback
+    btnElement.style.color = '#ffffff';
+    btnElement.disabled = true;
+    
+    setTimeout(() => {
+        btnElement.innerText = originalText;
+        btnElement.style.backgroundColor = ''; // Reset CSS
+        btnElement.style.color = '';
+        btnElement.disabled = false;
+    }, 900);
+};
+
+// Increment or decrement quantity
+window.changeQty = function(index, delta) {
+    cart[index].quantity += delta;
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+    updateCartUI();
+};
+
+// Modal toggles
+window.openCart = function() {
+    document.getElementById('cart-modal').style.display = 'flex';
+};
+
+window.closeCart = function() {
+    document.getElementById('cart-modal').style.display = 'none';
+};
+
+// Process Checkout & Generate Order Receipt
+window.processCheckout = function() {
+    if (cart.length === 0) return;
+    
+    // Generate unique random 4-digit order number
+    const orderNumber = Math.floor(1000 + Math.random() * 9000);
+    
+    // Render receipt details
+    const receiptDetails = document.getElementById('receipt-details');
+    let receiptHTML = '<h4 style="margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">تفاصيل الطلب:</h4>';
+    let grandTotal = 0;
+    
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        grandTotal += itemTotal;
+        receiptHTML += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.9rem;">
+                <span>${item.displayName} × ${item.quantity}</span>
+                <span>${itemTotal} EGP</span>
+            </div>
+        `;
+    });
+    
+    receiptHTML += `
+        <div style="display: flex; justify-content: space-between; font-weight: 800; border-top: 2px dashed var(--border); margin-top: 0.5rem; padding-top: 0.5rem; font-size: 1.05rem;">
+            <span>الإجمالي الكلي:</span>
+            <span>${grandTotal} EGP</span>
+        </div>
+    `;
+    
+    receiptDetails.innerHTML = receiptHTML;
+    document.getElementById('receipt-order-number').innerText = `#${orderNumber}`;
+    
+    // Toggle screens inside the modal
+    document.getElementById('cart-view').style.display = 'none';
+    document.getElementById('receipt-view').style.display = 'block';
+    
+    // Reset/Clear Cart
+    cart = [];
+    updateCartUI();
+};
+
+// Reset screen for a new order
+window.resetNewOrder = function() {
+    document.getElementById('receipt-view').style.display = 'none';
+    document.getElementById('cart-view').style.display = 'block';
+    closeCart();
+};
+
+// Close modal if user clicks outside of modal content
+window.onclick = function(event) {
+    const modal = document.getElementById('cart-modal');
+    if (event.target === modal) {
+        closeCart();
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadContent();
-});
+// ---- END CART SYSTEM ----
+
 
 async function loadContent() {
     try {
@@ -63,7 +221,6 @@ async function loadContent() {
                 }
                 const itemsInCategory = menuItems.filter(item => item.category === category);
                 if (itemsInCategory.length > 0) {
-                    // Collapsible only on mobile; fully open on desktop
                     let sectionHTML = `
                         <div class="category-section ${isMobile ? 'collapsed' : ''}" dir="rtl" id="category-sec-${idx}">
                             <h3 class="category-header" ${isMobile ? `onclick="toggleSection('category-sec-${idx}')"` : ''}>
@@ -75,12 +232,23 @@ async function loadContent() {
                     `;
 
                     itemsInCategory.forEach(item => {
+                        // Static badges showing what bread options are available
                         let breadHTML = '';
                         if (item.breadOptions && item.breadOptions.length > 0) {
                             breadHTML = `
                                 <div class="bread-badges">
                                     ${item.breadOptions.map(opt => `<span class="bread-badge">${opt}</span>`).join('')}
                                 </div>
+                            `;
+                        }
+
+                        // Dynamic selection dropdown inside card for checkout adding
+                        let breadSelectHTML = '';
+                        if (item.breadOptions && item.breadOptions.length > 0) {
+                            breadSelectHTML = `
+                                <select class="bread-select">
+                                    ${item.breadOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                </select>
                             `;
                         }
 
@@ -91,7 +259,11 @@ async function loadContent() {
                                     <p class="item-desc">${item.description || ''}</p>
                                     ${breadHTML}
                                 </div>
-                                <div class="item-price">${item.price} EGP</div>
+                                <div class="card-action">
+                                    ${breadSelectHTML}
+                                    <button class="add-to-cart-btn" onclick="addToCart('${item._id}', '${item.name}', ${item.price}, this)">إضافة +</button>
+                                </div>
+                                <div class="item-price" style="margin-top: 0.5rem;">${item.price} EGP</div>
                             </div>
                         `;
                     });
@@ -138,3 +310,15 @@ async function loadContent() {
         document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color: gray;">Loading menu...</p>';
     }
 }
+
+// Collapsible helper for mobile
+window.toggleSection = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.toggle('collapsed');
+        const chevron = el.querySelector('.chevron');
+        if (chevron) {
+            chevron.innerText = el.classList.contains('collapsed') ? '▼' : '▲';
+        }
+    }
+};

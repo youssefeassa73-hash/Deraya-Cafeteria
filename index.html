@@ -49,6 +49,47 @@
         </div>
     </footer>
 
+    <!-- Floating Cart Button -->
+    <div id="cart-float-btn" onclick="openCart()">
+        <span class="cart-icon">🛒</span>
+        <span id="cart-count">0</span>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content" dir="rtl">
+            <span class="close-btn" onclick="closeCart()">&times;</span>
+            
+            <div id="cart-view">
+                <h3 class="modal-title">سلة الطلبات</h3>
+                <div id="cart-items-list">
+                    <p style="text-align: center; color: var(--text-light); margin: 2rem 0;">السلة فارغة حالياً</p>
+                </div>
+                <div class="cart-total-section">
+                    <span>الإجمالي:</span>
+                    <span id="cart-total-price">0 EGP</span>
+                </div>
+                <button class="checkout-btn" onclick="processCheckout()">تأكيد الطلب</button>
+            </div>
+            
+            <div id="receipt-view" style="display: none; text-align: center;">
+                <div class="receipt-success-icon">✓</div>
+                <h3 class="modal-title" style="margin-bottom: 0.5rem;">تم تسجيل طلبك بنجاح!</h3>
+                <div class="order-number-box">
+                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.25rem;">رقم الطلب (Order Number)</p>
+                    <h2 id="receipt-order-number" style="font-size: 2.5rem; color: var(--primary); font-weight: 800;">#0000</h2>
+                </div>
+                <div class="receipt-notice">
+                    <p>⚠️ <strong>تنبيه هام:</strong> يجب عليك التوجه إلى الكاشير ودفع الحساب لتأكيد طلبك وبدء تحضيره فوراً!</p>
+                </div>
+                <div id="receipt-details" style="text-align: right; margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius);">
+                    <!-- Receipt items injected dynamically -->
+                </div>
+                <button class="checkout-btn" onclick="resetNewOrder()">طلب جديد</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
