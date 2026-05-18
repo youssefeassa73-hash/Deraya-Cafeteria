@@ -1,13 +1,13 @@
 :root {
-    --primary: #374151; /* Charcoal/Dark Gray */
-    --secondary: #4b5563; /* Slate/Medium Gray */
-    --background: #f9fafb; /* Off-white / Lightest Gray */
-    --bg-light: #f3f4f6; /* Very Light Gray */
-    --text: #1f2937; /* Dark Gray Text */
-    --text-light: #6b7280; /* Medium Gray Text */
-    --card-bg: #ffffff;
-    --border: #e5e7eb;
-    --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.02);
+    --primary: #1f2937; /* Very Dark Charcoal */
+    --secondary: #4b5563; /* Cool Slate Gray */
+    --background: #f3f4f6; /* Cool Gray Page Background */
+    --bg-light: #e5e7eb; /* Slightly Darker Gray */
+    --text: #111827; /* Off-black */
+    --text-light: #4b5563; /* Medium Slate Gray */
+    --card-bg: #ffffff; /* Clean White Cards */
+    --border: #d1d5db; /* Distinct Gray Borders */
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -1px rgba(0,0,0,0.02);
     --radius: 8px;
 }
 
@@ -119,12 +119,15 @@ nav a:hover {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.card:hover {
+/* Hover effect: change color when the arrow/pointer is on it */
+.card:not(.offer-card):hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
+    background-color: #e5e7eb; /* Deeper grey background on hover */
+    border-color: #9ca3af; /* Darker border on hover */
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
 }
 
 .square-card {
@@ -140,6 +143,12 @@ nav a:hover {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
     border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.offer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.12);
 }
 
 .offer-card h3 {
