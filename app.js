@@ -47,15 +47,17 @@ async function loadContent() {
             menuSection.style.display = 'block';
             const categories = [...new Set(menuItems.map(item => item.category))];
 
+            const isMobile = window.innerWidth <= 768;
+
             categories.forEach((category, idx) => {
                 const itemsInCategory = menuItems.filter(item => item.category === category);
                 if (itemsInCategory.length > 0) {
-                    // Default to collapsed for a clean look, click to expand
+                    // Collapsible only on mobile; fully open on desktop
                     let sectionHTML = `
-                        <div class="category-section collapsed" dir="rtl" id="category-sec-${idx}">
-                            <h3 class="category-header" onclick="toggleSection('category-sec-${idx}')">
+                        <div class="category-section ${isMobile ? 'collapsed' : ''}" dir="rtl" id="category-sec-${idx}">
+                            <h3 class="category-header" ${isMobile ? `onclick="toggleSection('category-sec-${idx}')"` : ''}>
                                 <span class="category-title-text">${category}</span>
-                                <span class="chevron">▼</span>
+                                <span class="chevron">${isMobile ? '▼' : ''}</span>
                             </h3>
                             <div class="category-content">
                                 <div class="menu-grid">
