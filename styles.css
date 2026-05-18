@@ -125,8 +125,8 @@ nav a:hover {
 /* Hover effect: change color when the arrow/pointer is on it */
 .card:not(.offer-card):hover {
     transform: translateY(-3px);
-    background-color: #e5e7eb; /* Deeper grey background on hover */
-    border-color: #9ca3af; /* Darker border on hover */
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
 }
 
@@ -137,6 +137,31 @@ nav a:hover {
     justify-content: space-between;
     padding: 1.5rem;
     aspect-ratio: 1 / 1;
+}
+
+.item-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+    transition: color 0.2s;
+}
+
+.item-desc {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.item-price {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* When parent card is hovered, keep typography colors sharp */
+.card:hover .item-name {
+    color: #000000;
 }
 
 .offer-card {
@@ -151,23 +176,47 @@ nav a:hover {
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.12);
 }
 
-.offer-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Category Sections */
+/* Collapsible Category Section Styles */
 .category-section {
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
 }
 
-.category-title {
-    font-size: 2rem;
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.6rem;
+    font-weight: 700;
     color: var(--primary);
-    margin-bottom: 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    user-select: none;
+    transition: background-color 0.2s, border-color 0.2s;
     text-align: right;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--primary);
+}
+
+.category-header:hover {
+    background-color: var(--bg-light);
+    border-color: #9ca3af;
+}
+
+.chevron {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    transition: transform 0.2s;
+}
+
+.category-content {
+    padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+    transition: max-height 0.3s ease-out;
+}
+
+/* Collapse/Expand State */
+.category-section.collapsed .category-content {
+    display: none;
 }
 
 /* Footer */
@@ -188,14 +237,32 @@ footer p {
     margin-bottom: 0.5rem;
 }
 
-/* Responsive */
+/* Responsive & Compact Mobile View */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .hero {
+        padding: 4rem 0;
+    }
+
     .hero h2 {
         font-size: 2rem;
     }
 
+    .hero p {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .section {
+        padding: 3rem 0;
+    }
+
     .section-title {
         font-size: 1.8rem;
+        margin-bottom: 2rem;
     }
 
     header .container {
@@ -207,7 +274,36 @@ footer p {
         margin-left: 1rem;
     }
 
+    /* Collapse Header adjustment for mobile */
+    .category-header {
+        font-size: 1.3rem;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Force 2 clean columns and make them smaller/compact in mobile view */
     .menu-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .square-card {
+        padding: 1rem 0.75rem;
+        aspect-ratio: auto; /* Allow height to adjust dynamically to content */
+        min-height: 160px; /* Keep it square-ish but compact */
+    }
+
+    .item-name {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .item-desc {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        margin-bottom: 0.75rem;
+    }
+
+    .item-price {
+        font-size: 1.15rem;
     }
 }

@@ -9,6 +9,18 @@ function sanityQuery(query) {
     return fetch(url).then(res => res.json()).then(data => data.result);
 }
 
+// Global function to toggle collapsible menu sections
+window.toggleSection = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.toggle('collapsed');
+        const chevron = el.querySelector('.chevron');
+        if (chevron) {
+            chevron.innerText = el.classList.contains('collapsed') ? '▼' : '▲';
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     loadContent();
 });
@@ -35,28 +47,34 @@ async function loadContent() {
             menuSection.style.display = 'block';
             const categories = [...new Set(menuItems.map(item => item.category))];
 
-            categories.forEach(category => {
+            categories.forEach((category, idx) => {
                 const itemsInCategory = menuItems.filter(item => item.category === category);
                 if (itemsInCategory.length > 0) {
+                    // Default to collapsed for a clean look, click to expand
                     let sectionHTML = `
-                        <div class="category-section" dir="rtl">
-                            <h3 class="category-title">${category}</h3>
-                            <div class="menu-grid">
+                        <div class="category-section collapsed" dir="rtl" id="category-sec-${idx}">
+                            <h3 class="category-header" onclick="toggleSection('category-sec-${idx}')">
+                                <span class="category-title-text">${category}</span>
+                                <span class="chevron">▼</span>
+                            </h3>
+                            <div class="category-content">
+                                <div class="menu-grid">
                     `;
 
                     itemsInCategory.forEach(item => {
                         sectionHTML += `
                             <div class="card square-card">
-                                <div>
-                                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--secondary);">${item.name}</h3>
-                                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">${item.description || ''}</p>
+                                <div class="card-info">
+                                    <h3 class="item-name">${item.name}</h3>
+                                    <p class="item-desc">${item.description || ''}</p>
                                 </div>
-                                <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${item.price} EGP</div>
+                                <div class="item-price">${item.price} EGP</div>
                             </div>
                         `;
                     });
 
                     sectionHTML += `
+                                </div>
                             </div>
                         </div>
                     `;
@@ -77,10 +95,10 @@ async function loadContent() {
             offers.forEach(offer => {
                 const priceHTML = offer.price ? `<div style="font-size: 1.5rem; font-weight: 800; margin-top: 1rem;">${offer.price} EGP</div>` : '';
                 offersContainer.innerHTML += `
-                    <div class="card offer-card square-card" dir="rtl" style="text-align: right; background: linear-gradient(135deg, var(--primary), #ff6b81); color: white;">
+                    <div class="card offer-card square-card" dir="rtl" style="text-align: right; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
                         <div>
-                            <h3 style="color: white;">${offer.title}</h3>
-                            <p style="color: #f1f2f6;">${offer.description || ''}</p>
+                            <h3 style="color: white; font-size: 1.3rem;">${offer.title}</h3>
+                            <p style="color: #f3f4f6; font-size: 0.9rem; margin-top: 0.5rem;">${offer.description || ''}</p>
                         </div>
                         ${priceHTML}
                     </div>
@@ -94,7 +112,6 @@ async function loadContent() {
 
     } catch (error) {
         console.error('Error loading content from Sanity:', error);
-        // Fallback: show a message
         document.getElementById('menu-container').innerHTML = '<p style="text-align:center; color: gray;">Loading menu...</p>';
     }
 }
