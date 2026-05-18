@@ -36,6 +36,21 @@ export default {
       type: 'number',
       validation: (Rule) => Rule.required().min(0),
     },
+    {
+      name: 'breadOptions',
+      title: 'خيارات العيش المتاحة (Available Bread Options)',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {
+        list: [
+          {title: 'عيش بلدي (Baladi Bread)', value: 'عيش بلدي'},
+          {title: 'عيش فينو (Fino Bread)', value: 'فينو'},
+          {title: 'عيش سوري (Syrian Bread)', value: 'سوري'},
+        ],
+      },
+      hidden: ({document}) => 
+        !['الفطار', 'السندوتشات'].includes(document?.category),
+    },
   ],
   preview: {
     select: {

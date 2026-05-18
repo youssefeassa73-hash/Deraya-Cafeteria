@@ -155,6 +155,24 @@ nav a:hover {
     line-height: 1.3;
 }
 
+.bread-badges {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+}
+
+.bread-badge {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+}
+
 .item-price {
     font-size: 1.15rem;
     font-weight: 800;
@@ -315,6 +333,11 @@ footer p {
     .item-desc {
         font-size: 0.72rem;
         margin-bottom: 0.5rem;
+    }
+
+    .bread-badge {
+        font-size: 0.62rem;
+        padding: 0.05rem 0.25rem;
     }
 
     .item-price {

@@ -64,11 +64,21 @@ async function loadContent() {
                     `;
 
                     itemsInCategory.forEach(item => {
+                        let breadHTML = '';
+                        if (item.breadOptions && item.breadOptions.length > 0) {
+                            breadHTML = `
+                                <div class="bread-badges">
+                                    ${item.breadOptions.map(opt => `<span class="bread-badge">${opt}</span>`).join('')}
+                                </div>
+                            `;
+                        }
+
                         sectionHTML += `
                             <div class="card square-card">
                                 <div class="card-info">
                                     <h3 class="item-name">${item.name}</h3>
                                     <p class="item-desc">${item.description || ''}</p>
+                                    ${breadHTML}
                                 </div>
                                 <div class="item-price">${item.price} EGP</div>
                             </div>
