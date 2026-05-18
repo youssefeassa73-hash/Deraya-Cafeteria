@@ -467,14 +467,23 @@ async function loadContent() {
         } else {
             offersSection.style.display = 'block';
             offers.forEach(offer => {
-                const priceHTML = offer.price ? `<div style="font-size: 1.5rem; font-weight: 800; margin-top: 1rem;">${offer.price} EGP</div>` : '';
+                const priceHTML = offer.price ? `<div style="font-size: 1.3rem; font-weight: 800; margin-top: 0.5rem; color: white;">${offer.price} EGP</div>` : '';
+                const buttonHTML = offer.price ? `
+                    <div class="card-action" style="margin-top: 0.75rem;">
+                        <button class="add-to-cart-btn" style="background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;" onclick="addToCart('${offer._id}', '${offer.title}', ${offer.price}, this)">إضافة للعرض +</button>
+                    </div>
+                ` : '';
+                
                 offersContainer.innerHTML += `
-                    <div class="card offer-card square-card" dir="rtl" style="text-align: right; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+                    <div class="card offer-card square-card" dir="rtl" style="text-align: right; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
                         <div>
-                            <h3 style="color: white; font-size: 1.3rem;">${offer.title}</h3>
-                            <p style="color: #f3f4f6; font-size: 0.9rem; margin-top: 0.5rem;">${offer.description || ''}</p>
+                            <h3 style="color: white; font-size: 1.3rem; margin-bottom: 0.25rem;">${offer.title}</h3>
+                            <p style="color: #f3f4f6; font-size: 0.85rem; margin-bottom: 0.5rem;">${offer.description || ''}</p>
                         </div>
-                        ${priceHTML}
+                        <div>
+                            ${priceHTML}
+                            ${buttonHTML}
+                        </div>
                     </div>
                 `;
             });
