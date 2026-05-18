@@ -57,6 +57,10 @@ async function loadContent() {
             const isMobile = window.innerWidth <= 768;
 
             categories.forEach((category, idx) => {
+                // Skip rendering if category is hidden by admin in settings
+                if (settings && settings.hiddenCategories && settings.hiddenCategories.includes(category)) {
+                    return;
+                }
                 const itemsInCategory = menuItems.filter(item => item.category === category);
                 if (itemsInCategory.length > 0) {
                     // Collapsible only on mobile; fully open on desktop
