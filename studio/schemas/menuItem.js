@@ -1,0 +1,53 @@
+export default {
+  name: 'menuItem',
+  title: 'Menu Item',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'اسم الطبق (Dish Name)',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'category',
+      title: 'القسم (Category)',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'الفطار', value: 'الفطار'},
+          {title: 'السندوتشات', value: 'السندوتشات'},
+          {title: 'الكرييب', value: 'الكرييب'},
+          {title: 'الوجبات', value: 'الوجبات'},
+          {title: 'البيتزا', value: 'البيتزا'},
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'الوصف (Description)',
+      type: 'text',
+      rows: 2,
+    },
+    {
+      name: 'price',
+      title: 'السعر (Price - EGP)',
+      type: 'number',
+      validation: (Rule) => Rule.required().min(0),
+    },
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'category',
+      price: 'price',
+    },
+    prepare({title, subtitle, price}) {
+      return {
+        title: title,
+        subtitle: `${subtitle} — ${price} EGP`,
+      }
+    },
+  },
+}
