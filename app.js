@@ -45,7 +45,14 @@ async function loadContent() {
             menuSection.style.display = 'none';
         } else {
             menuSection.style.display = 'block';
-            const categories = [...new Set(menuItems.map(item => item.category))];
+            const categoryOrder = ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
+            const categories = [...new Set(menuItems.map(item => item.category))].sort((a, b) => {
+                let indexA = categoryOrder.indexOf(a);
+                let indexB = categoryOrder.indexOf(b);
+                if (indexA === -1) indexA = 999;
+                if (indexB === -1) indexB = 999;
+                return indexA - indexB;
+            });
 
             const isMobile = window.innerWidth <= 768;
 
