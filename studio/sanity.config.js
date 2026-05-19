@@ -147,3 +147,61 @@ export default defineConfig({
   },
 })
 
+// Silent background old unpaid orders cleaner inside Sanity Studio (runs every 30 seconds)
+if (typeof window !== 'undefined') {
+  const SANITY_PROJECT_ID = 'ksse299y';
+  const SANITY_DATASET = 'production';
+  const SANITY_API_VERSION = '2021-06-07';
+  const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
+
+  async function studioCleanupUnpaidOrders() {
+    try {
+      const query = encodeURIComponent('*[_type == "order" && status == "not_confirmed"]{_id, _createdAt}');
+      const queryUrl = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
+      
+      const res = await fetch(queryUrl);
+      const data = await res.json();
+      const unpaidOrders = data.result;
+      
+      if (!unpaidOrders || unpaidOrders.length === 0) return;
+
+      const now = new Date();
+      const fortyMinutesAgo = 40 * 60 * 1000;
+      const idsToDelete = [];
+
+      unpaidOrders.forEach(order => {
+        const createdTime = new Date(order._createdAt);
+        if (now - createdTime > fortyMinutesAgo) {
+          idsToDelete.push(order._id);
+        }
+      });
+
+      if (idsToDelete.length === 0) return;
+
+      console.log(`[Studio GC] Cleaning up ${idsToDelete.length} unpaid orders older than 40 minutes...`);
+
+      const mutateUrl = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+      const mutations = {
+        mutations: idsToDelete.map(id => ({ delete: { id } }))
+      };
+
+      await fetch(mutateUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+        },
+        body: JSON.stringify(mutations)
+      });
+      console.log('[Studio GC] Old unpaid orders cleaned up successfully!');
+    } catch (error) {
+      console.error('[Studio GC] Error cleaning up old unpaid orders:', error);
+    }
+  }
+
+  // Run immediately on dashboard boot
+  studioCleanupUnpaidOrders();
+  // And run every 30 seconds to keep it perfectly clean in real-time
+  setInterval(studioCleanupUnpaidOrders, 30000);
+}
+
