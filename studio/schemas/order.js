@@ -68,6 +68,12 @@ export default {
       initialValue: () => new Date().toISOString(),
       readOnly: true,
     },
+    {
+      name: 'paidAt',
+      title: 'تاريخ ووقت الدفع (Payment Date & Time)',
+      type: 'datetime',
+      readOnly: true,
+    },
   ],
   preview: {
     select: {

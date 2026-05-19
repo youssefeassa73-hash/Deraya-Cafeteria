@@ -241,13 +241,21 @@
         const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
 
         async function fetchPaidOrders() {
-            const query = encodeURIComponent('*[_type == "order" && status == "paid"] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt}');
+            const query = encodeURIComponent('*[_type == "order" && status == "paid"] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt, paidAt}');
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
             
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                renderOrders(data.result);
+                const orders = data.result || [];
+                
+                // Automatically stamp any paid orders that don't have paidAt set yet
+                const unstampedOrders = orders.filter(o => !o.paidAt);
+                if (unstampedOrders.length > 0) {
+                    stampPaidOrders(unstampedOrders);
+                }
+                
+                renderOrders(orders);
             } catch (error) {
                 console.error('Error fetching orders:', error);
                 document.getElementById('orders-grid').innerHTML = `
@@ -256,6 +264,32 @@
                         <h2>خطأ في الاتصال بالخادم. سنحاول مرة أخرى...</h2>
                     </div>
                 `;
+            }
+        }
+
+        async function stampPaidOrders(ordersToStamp) {
+            const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+            const patches = ordersToStamp.map(order => ({
+                patch: {
+                    id: order._id,
+                    set: {
+                        paidAt: new Date().toISOString()
+                    }
+                }
+            }));
+
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+                    },
+                    body: JSON.stringify({ mutations: patches })
+                });
+                console.log('Stamped paidAt timestamps successfully.');
+            } catch (err) {
+                console.error('Error stamping paidAt:', err);
             }
         }
 
@@ -275,8 +309,9 @@
 
             let html = '';
             orders.forEach(order => {
-                const createdTime = new Date(order.createdAt);
-                const timeDiff = Math.round((new Date() - createdTime) / 60000); // In minutes
+                // Timer starts exactly when status was changed to Paid (falls back to createdAt if stamp isn't written yet)
+                const baseTime = order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt);
+                const timeDiff = Math.round((new Date() - baseTime) / 60000); // In minutes
                 const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
                 
                 let commentsHTML = '';
