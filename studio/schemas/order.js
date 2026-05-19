@@ -42,7 +42,12 @@ export default {
       name: 'customerPhone',
       title: 'رقم الهاتف (Phone Number)',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/^01[0-9]{9}$/, {
+            name: 'رقم هاتف مصري صحيح (11 رقم يبدأ بـ 01)',
+          })
+          .error('رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 01'),
     },
     {
       name: 'items',

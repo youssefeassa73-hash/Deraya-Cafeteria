@@ -299,15 +299,25 @@ window.processCheckout = async function() {
         nameInput.style.borderColor = '';
     }
     
-    if (!customerPhone) {
+    // Egyptian phone validation: 11 digits, starts with 01
+    const phoneRegex = /^01[0-9]{9}$/;
+    let isPhoneValid = true;
+    if (!customerPhone || !phoneRegex.test(customerPhone)) {
         phoneInput.style.borderColor = '#ef4444';
+        isPhoneValid = false;
         isValid = false;
     } else {
         phoneInput.style.borderColor = '';
     }
     
     if (!isValid) {
-        alert('من فضلك أدخل الاسم ورقم الهاتف لتأكيد طلبك! (Please enter your name and phone number)');
+        if (!customerName) {
+            alert('من فضلك أدخل الاسم الكريم لتأكيد طلبك! (Please enter your name)');
+        } else if (!isPhoneValid) {
+            alert('رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 01 (مثال: 01012345678)');
+        } else {
+            alert('من فضلك أدخل البيانات المطلوبة لتأكيد طلبك!');
+        }
         return;
     }
     
