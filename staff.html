@@ -288,6 +288,9 @@
                     `;
                 }
 
+                // Strip pricing like (EGP 160) or (160 EGP) from items list
+                const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
+
                 html += `
                     <div class="order-card" id="card-${order._id}">
                         <div class="card-header">
@@ -296,7 +299,7 @@
                         </div>
                         <div class="card-body">
                             <div class="cust-name">العميل: ${order.customerName}</div>
-                            <div class="items-list">${order.items}</div>
+                            <div class="items-list">${cleanItems}</div>
                             ${commentsHTML}
                         </div>
                         <div class="card-footer">
