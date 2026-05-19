@@ -370,10 +370,10 @@ window.processCheckout = async function() {
     const walletNum = (globalSettings && globalSettings.walletNumber) ? globalSettings.walletNumber : '01096441391';
     receiptHTML += `
         <div style="margin-top: 1rem; border-top: 2px solid var(--border); padding-top: 0.75rem; text-align: center; font-size: 0.95rem; line-height: 1.5; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 12px; border-radius: var(--radius); color: var(--text-main);" dir="rtl">
-            <div style="font-weight: 800; color: #3b82f6; margin-bottom: 0.25rem; font-size: 1.05rem;">💳 للدفع الإلكتروني أونلاين:</div>
-            <div>برجاء تحويل المبلغ إلى الرقم:</div>
+            <div style="font-weight: 800; color: #3b82f6; margin-bottom: 0.25rem; font-size: 1.05rem;">💳 خدمات الدفع الإلكتروني:</div>
+            <div>برجاء تحويل المبلغ إلى رقم المحفظة الإلكترونية:</div>
             <div style="font-size: 1.35rem; font-weight: 900; letter-spacing: 1px; color: #10b981; margin: 0.35rem 0;">${walletNum}</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">* يجب تصوير إيصال التحويل الناجح وعرضه للكاشير لتأكيد طلبك واستلام وجبتك! *</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">* يجب تصوير إيصال التحويل الناجح وعرضه للكاشير لتأكيد واستلام طلبك! *</div>
         </div>
     `;
     
