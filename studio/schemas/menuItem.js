@@ -11,9 +11,24 @@ export default {
     },
     {
       name: 'category',
-      title: 'القسم (Category)',
-      description: 'أدخل اسم القسم هنا (تأكد من مطابقته للأقسام المضافة في إعدادات الموقع)',
+      title: 'القسم القديم (Old Category String)',
       type: 'string',
+      options: {
+        list: [
+          {title: 'الفطار', value: 'الفطار'},
+          {title: 'السندوتشات', value: 'السندوتشات'},
+          {title: 'الكرييب', value: 'الكرييب'},
+          {title: 'الوجبات', value: 'الوجبات'},
+          {title: 'البيتزا', value: 'البيتزا'},
+        ],
+      },
+      hidden: true,
+    },
+    {
+      name: 'categoryRef',
+      title: 'القسم (Category)',
+      type: 'reference',
+      to: [{type: 'category'}],
       validation: (Rule) => Rule.required(),
     },
     {
@@ -40,14 +55,12 @@ export default {
           {title: 'عيش سوري (Syrian Bread)', value: 'سوري'},
         ],
       },
-      hidden: ({document}) => 
-        !['الفطار', 'السندوتشات'].includes(document?.category),
     },
   ],
   preview: {
     select: {
       title: 'name',
-      subtitle: 'category',
+      subtitle: 'categoryRef.name',
       price: 'price',
     },
     prepare({title, subtitle, price}) {

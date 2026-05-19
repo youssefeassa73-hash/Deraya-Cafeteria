@@ -4,14 +4,8 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas/index.js'
 
 // Define the custom structure to group items by section
-const myStructure = async (S, context) => {
-  const client = context.getClient({apiVersion: '2021-06-07'});
-  const settings = await client.fetch('*[_type == "siteSettings"][0]');
-  const dynamicSections = settings?.menuSections && settings.menuSections.length > 0 
-    ? settings.menuSections 
-    : ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
-
-  return S.list()
+const myStructure = (S) =>
+  S.list()
     .title('Deraya Cafeteria')
     .items([
       // 1. NOT CONFIRMED ORDERS (الطلبات الجديدة)
@@ -74,24 +68,27 @@ const myStructure = async (S, context) => {
 
               S.divider(),
 
-              // Menu by Category/Section (DYNAMIC!)
+              // Menu by Category/Section (Dynamic)
               S.listItem()
-                .title('أقسام المنيو (Menu Sections)')
+                .title('إدارة أقسام المنيو (Manage Categories)')
                 .child(
-                  S.list()
-                    .title('أقسام المنيو (Menu Sections)')
-                    .items(
-                      dynamicSections.map(section => 
-                        S.listItem()
-                          .title(section)
-                          .child(
-                            S.documentList()
-                              .title(section)
-                              .schemaType('menuItem')
-                              .filter('_type == "menuItem" && category == $cat')
-                              .params({cat: section})
-                          )
-                      )
+                  S.documentTypeList('category')
+                    .title('أقسام المنيو (Categories)')
+                ),
+                
+              S.divider(),
+              
+              S.listItem()
+                .title('أصناف المنيو (Menu Items)')
+                .child(
+                  S.documentTypeList('category')
+                    .title('اختر القسم لعرض الأصناف')
+                    .child(categoryId =>
+                      S.documentList()
+                        .title('عناصر المنيو')
+                        .schemaType('menuItem')
+                        .filter('_type == "menuItem" && categoryRef._ref == $categoryId')
+                        .params({ categoryId })
                     )
                 ),
               
@@ -107,7 +104,6 @@ const myStructure = async (S, context) => {
             ])
         ),
     ])
-}
 
 export default defineConfig({
   name: 'deraya-cafeteria',

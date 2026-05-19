@@ -613,7 +613,7 @@ async function loadContent() {
     try {
         // Fetch all data from Sanity
         const [menuItems, offers, settingsArr] = await Promise.all([
-            sanityQuery('*[_type == "menuItem"] | order(category asc, _createdAt asc)'),
+            sanityQuery('*[_type == "menuItem"]{..., "category": categoryRef->name, "categoryOrder": categoryRef->order} | order(categoryOrder asc, category asc, _createdAt asc)'),
             sanityQuery('*[_type == "offer"] | order(_createdAt desc)'),
             sanityQuery('*[_type == "siteSettings"][0..0]')
         ]);
@@ -636,17 +636,8 @@ async function loadContent() {
             menuSection.style.display = 'none';
         } else {
             menuSection.style.display = 'block';
-            let categoryOrder = ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
-            if (settings && settings.menuSections && settings.menuSections.length > 0) {
-                categoryOrder = settings.menuSections;
-            }
-            const categories = [...new Set(menuItems.map(item => item.category))].sort((a, b) => {
-                let indexA = categoryOrder.indexOf(a);
-                let indexB = categoryOrder.indexOf(b);
-                if (indexA === -1) indexA = 999;
-                if (indexB === -1) indexB = 999;
-                return indexA - indexB;
-            });
+            // Extract unique categories in the order they appear (already sorted by backend categoryOrder)
+            const categories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
 
             const isMobile = window.innerWidth <= 768;
 
