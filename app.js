@@ -615,7 +615,7 @@ async function loadContent() {
         const [menuItems, offers, settingsArr] = await Promise.all([
             sanityQuery('*[_type == "menuItem"]{..., "category": categoryRef->name, "categoryOrder": categoryRef->order} | order(categoryOrder asc, category asc, _createdAt asc)'),
             sanityQuery('*[_type == "offer"] | order(_createdAt desc)'),
-            sanityQuery('*[_type == "siteSettings"][0..0]')
+            sanityQuery('*[_type == "siteSettings"][0..0]{..., "hiddenCategories": hiddenCategories[]->name}')
         ]);
 
         const settings = settingsArr && settingsArr.length > 0 ? settingsArr[0] : null;
