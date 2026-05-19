@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deraya Cafeteria</title>
-    <meta name="description" content="Deraya Cafeteria - Delicious food crafted with passion. View our menu, special offers, and contact us.">
+    <meta name="description"
+        content="Deraya Cafeteria - Delicious food crafted with passion. View our menu, special offers, and contact us.">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <header>
         <div class="container">
@@ -23,7 +26,7 @@
     <section class="hero">
         <div class="hero-content">
             <h2>Welcome to Deraya Cafeteria</h2>
-            <p>Delicious food crafted with passion and the finest ingredients.</p>
+            <p dir="rtl">المذاكره و الامتحنات عليك , بس فطارك و غداك و السناك علينا</p>
         </div>
     </section>
 
@@ -59,7 +62,7 @@
     <div id="cart-modal" class="modal">
         <div class="modal-content" dir="rtl">
             <span class="close-btn" onclick="closeCart()">&times;</span>
-            
+
             <div id="cart-view">
                 <h3 class="modal-title">سلة الطلبات</h3>
                 <div id="cart-items-list">
@@ -69,46 +72,66 @@
                     <span>الإجمالي:</span>
                     <span id="cart-total-price">0 EGP</span>
                 </div>
-                
+
                 <!-- Customer Details Form -->
-                <div class="checkout-form" style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
-                    <h4 style="margin-bottom: 0.75rem; font-weight: 700; color: var(--primary); text-align: right;">بيانات العميل (Customer Details)</h4>
+                <div class="checkout-form"
+                    style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <h4 style="margin-bottom: 0.75rem; font-weight: 700; color: var(--primary); text-align: right;">
+                        بيانات العميل (Customer Details)</h4>
                     <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: right;">
                         <div>
-                            <label for="cust-name" style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">الاسم بالكامل *</label>
-                            <input type="text" id="cust-name" placeholder="أدخل اسمك الكريم" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem;" required>
+                            <label for="cust-name"
+                                style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">الاسم
+                                بالكامل *</label>
+                            <input type="text" id="cust-name" placeholder="أدخل اسمك الكريم"
+                                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem;"
+                                required>
                         </div>
                         <div>
-                            <label for="cust-phone" style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">رقم الهاتف *</label>
-                            <input type="tel" id="cust-phone" placeholder="مثال: 01012345678" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem;" required>
+                            <label for="cust-phone"
+                                style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">رقم
+                                الهاتف *</label>
+                            <input type="tel" id="cust-phone" placeholder="مثال: 01012345678"
+                                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem;"
+                                required>
                         </div>
                         <div>
-                            <label for="cust-comments" style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">ملاحظات خاصة بالطلب (Comments / Special Requests)</label>
-                            <textarea id="cust-comments" placeholder="مثال: بدون شطة، زيادة كاتشب، إلخ..." rows="2" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
+                            <label for="cust-comments"
+                                style="font-size: 0.85rem; color: var(--text-light); display: block; margin-bottom: 0.25rem;">ملاحظات
+                                خاصة بالطلب (Comments / Special Requests)</label>
+                            <textarea id="cust-comments" placeholder="مثال: بدون شطة، زيادة كاتشب، إلخ..." rows="2"
+                                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: none;"></textarea>
                         </div>
                     </div>
                 </div>
-                
-                <button class="checkout-btn" style="margin-top: 1.5rem;" onclick="processCheckout()">تأكيد الطلب</button>
+
+                <button class="checkout-btn" style="margin-top: 1.5rem;" onclick="processCheckout()">تأكيد
+                    الطلب</button>
             </div>
-            
+
             <div id="receipt-view" style="display: none; text-align: center;">
                 <div class="receipt-success-icon">✓</div>
                 <h3 class="modal-title" style="margin-bottom: 0.5rem;">تم تسجيل طلبك بنجاح!</h3>
                 <div class="order-number-box">
-                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.25rem;">رقم الطلب (Order Number)</p>
-                    <h2 id="receipt-order-number" style="font-size: 2.5rem; color: var(--primary); font-weight: 800;">#0000</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.25rem;">رقم الطلب (Order
+                        Number)</p>
+                    <h2 id="receipt-order-number" style="font-size: 2.5rem; color: var(--primary); font-weight: 800;">
+                        #0000</h2>
                 </div>
                 <div class="receipt-notice">
-                    <p>⚠️ <strong>تنبيه هام:</strong> يجب عليك التوجه إلى الكاشير ودفع الحساب <strong>في خلال 30 دقيقة</strong> لتأكيد طلبك وبدء تحضيره، وإلا سيتم إلغاء الطلب وحذفه تلقائياً!</p>
+                    <p>⚠️ <strong>تنبيه هام:</strong> يجب عليك التوجه إلى الكاشير ودفع الحساب <strong>في خلال 30
+                            دقيقة</strong> لتأكيد طلبك وبدء تحضيره، وإلا سيتم إلغاء الطلب وحذفه تلقائياً!</p>
                 </div>
-                <div id="receipt-details" style="text-align: right; margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius);">
+                <div id="receipt-details"
+                    style="text-align: right; margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius);">
                     <!-- Receipt items injected dynamically -->
                 </div>
-                
+
                 <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
-                    <button class="checkout-btn" style="background-color: #10b981;" onclick="downloadReceiptPDF()">تحميل الفاتورة PDF 📄</button>
-                    <button class="checkout-btn" style="background-color: var(--secondary);" onclick="resetNewOrder()">طلب جديد</button>
+                    <button class="checkout-btn" style="background-color: #10b981;" onclick="downloadReceiptPDF()">تحميل
+                        الفاتورة PDF 📄</button>
+                    <button class="checkout-btn" style="background-color: var(--secondary);"
+                        onclick="resetNewOrder()">طلب جديد</button>
                 </div>
             </div>
         </div>
@@ -116,4 +139,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
