@@ -20,6 +20,13 @@ export default {
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'totalPrice',
+      title: 'السعر الإجمالي (Total Price - EGP) 💰',
+      type: 'number',
+      validation: (Rule) => Rule.required(),
+      readOnly: true,
+    },
+    {
       name: 'orderNumber',
       title: 'رقم الطلب (Order Number)',
       type: 'string',
@@ -42,12 +49,6 @@ export default {
       title: 'الأطباق المطلوبة (Ordered Items)',
       type: 'text',
       rows: 4,
-    },
-    {
-      name: 'totalPrice',
-      title: 'السعر الإجمالي (Total Price - EGP)',
-      type: 'number',
-      validation: (Rule) => Rule.required(),
     },
     {
       name: 'createdAt',
