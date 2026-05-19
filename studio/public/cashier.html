@@ -490,7 +490,11 @@
             document.getElementById('count-not_confirmed').innerText = counts.not_confirmed;
             document.getElementById('count-paid').innerText = counts.paid;
             document.getElementById('count-ready').innerText = counts.ready;
-            document.getElementById('count-done').innerText = counts.done;
+            
+            const countDoneEl = document.getElementById('count-done');
+            if (countDoneEl) {
+                countDoneEl.innerText = counts.done;
+            }
         }
 
         function switchTab(tabName) {
