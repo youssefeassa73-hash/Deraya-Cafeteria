@@ -256,8 +256,10 @@ window.addToCart = function(itemId, name, price, btnElement) {
     const existingIndex = cart.findIndex(item => item.displayName === displayName);
     
     if (existingIndex > -1) {
-        cart[existingIndex].quantity += 1;
+        // Toggle off: remove item completely from cart if clicked again
+        cart.splice(existingIndex, 1);
     } else {
+        // Toggle on: add new item to cart
         cart.push({
             itemId: itemId,
             displayName: displayName,
