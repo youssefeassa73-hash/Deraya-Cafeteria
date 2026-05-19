@@ -548,8 +548,13 @@
 
             let html = '';
             filtered.forEach(order => {
-                const createdTime = new Date(order.createdAt);
-                const timeDiff = Math.round((new Date() - createdTime) / 60000);
+                let baseTime = new Date(order.createdAt);
+                if (order.status === 'paid' && order.paidAt) {
+                    baseTime = new Date(order.paidAt);
+                } else if (order.status === 'ready' && order.readyAt) {
+                    baseTime = new Date(order.readyAt);
+                }
+                const timeDiff = Math.round((new Date() - baseTime) / 60000);
                 const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
                 
                 let commentsHTML = '';

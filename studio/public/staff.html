@@ -366,7 +366,7 @@
 
         async function fetchPaidOrders() {
             // Fetch both "paid" (preparing) and "ready" (pick up) orders
-            const query = encodeURIComponent('*[_type == "order" && (status == "paid" || status == "ready")] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt, paidAt, status}');
+            const query = encodeURIComponent('*[_type == "order" && (status == "paid" || status == "ready")] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt, paidAt, readyAt, status}');
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
             
             try {
@@ -499,13 +499,15 @@
                         `;
                     }
                     
-                    const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
+                    const baseTime = order.readyAt ? new Date(order.readyAt) : (order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt));
+                    const timeDiff = Math.round((new Date() - baseTime) / 60000);
+                    const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
                     
                     html += `
                         <div class="order-card ready-card" id="card-${order._id}">
                             <div class="card-header">
                                 <span class="order-num">#${order.orderNumber}</span>
-                                <span class="order-time">جاهز للتسليم</span>
+                                <span class="order-time">${timeText}</span>
                             </div>
                             <div class="card-body">
                                 <div class="cust-name">العميل: ${order.customerName}</div>
@@ -531,15 +533,20 @@
                 button.innerText = 'جاري التحديث... ⏳';
             }
 
+            const setFields = { status: nextStatus };
+            if (nextStatus === 'ready') {
+                setFields.readyAt = new Date().toISOString();
+            } else if (nextStatus === 'done') {
+                setFields.doneAt = new Date().toISOString();
+            }
+
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
             const mutations = {
                 mutations: [
                     {
                         patch: {
                             id: orderId,
-                            set: {
-                                status: nextStatus
-                            }
+                            set: setFields
                         }
                     }
                 ]
