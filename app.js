@@ -17,7 +17,49 @@ let cart = JSON.parse(localStorage.getItem('cafeteria_cart')) || [];
 document.addEventListener('DOMContentLoaded', () => {
     loadContent();
     updateCartUI();
+    cleanupOldUnpaidOrders(); // Run silent background order cleaner on page load!
 });
+
+// Silent background old unpaid orders cleaner (deletes unpaid orders older than 40 minutes)
+async function cleanupOldUnpaidOrders() {
+    if (!SANITY_WRITE_TOKEN) return;
+    try {
+        const unpaidOrders = await sanityQuery('*[_type == "order" && status == "not_confirmed"]{_id, _createdAt}');
+        if (!unpaidOrders || unpaidOrders.length === 0) return;
+
+        const now = new Date();
+        const fortyMinutesAgo = 40 * 60 * 1000;
+        const idsToDelete = [];
+
+        unpaidOrders.forEach(order => {
+            const createdTime = new Date(order._createdAt);
+            if (now - createdTime > fortyMinutesAgo) {
+                idsToDelete.push(order._id);
+            }
+        });
+
+        if (idsToDelete.length === 0) return;
+
+        console.log(`Cleaning up ${idsToDelete.length} unpaid orders older than 40 minutes...`);
+
+        const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+        const mutations = {
+            mutations: idsToDelete.map(id => ({ delete: { id } }))
+        };
+
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+            },
+            body: JSON.stringify(mutations)
+        });
+        console.log('Old unpaid orders cleaned up successfully!');
+    } catch (error) {
+        console.error('Error cleaning up old unpaid orders:', error);
+    }
+}
 
 // Update the Cart count, totals, and dropdown list in the modal
 function updateCartUI() {
@@ -323,7 +365,8 @@ window.downloadReceiptPDF = function() {
                 ${detailsHTML}
             </div>
             <div class="notice">
-                ⚠️ يجب دفع هذه الفاتورة عند الكاشير لتأكيد الطلب وبدء التحضير فوراً!
+                ⚠️ يجب دفع هذه الفاتورة عند الكاشير لتأكيد الطلب وبدء التحضير فوراً!<br>
+                🚨 تنبيه: سيتم إلغاء الطلب تلقائياً وحذفه بعد 30 دقيقة في حال عدم الدفع.
             </div>
             <div class="footer">
                 شكرًا لزيارتكم! بالهناء والشفاء ☕🍔
