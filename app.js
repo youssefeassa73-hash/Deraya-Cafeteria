@@ -117,9 +117,32 @@ async function cleanupOldUnpaidOrders() {
         console.error('Error cleaning up old unpaid orders:', error);
     }
 }
+function syncMenuAddButtons() {
+    const cartItemIds = new Set(cart.map(item => item.itemId));
+    
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        const itemId = btn.getAttribute('data-item-id');
+        if (!itemId) return;
+        
+        const isOffer = btn.innerText.includes('للعرض') || btn.closest('#offers-container') !== null;
+        
+        if (cartItemIds.has(itemId)) {
+            btn.innerText = isOffer ? 'تم إضافة العرض ✓' : 'تم الإضافة ✓';
+            btn.style.backgroundColor = '#10b981';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#ffffff';
+        } else {
+            btn.innerText = isOffer ? 'إضافة للعرض +' : 'إضافة +';
+            btn.style.backgroundColor = isOffer ? 'white' : '';
+            btn.style.borderColor = '';
+            btn.style.color = isOffer ? 'var(--primary)' : '';
+        }
+    });
+}
 
 // Update the Cart count, totals, and dropdown list in the modal
 function updateCartUI() {
+    syncMenuAddButtons();
     localStorage.setItem('cafeteria_cart', JSON.stringify(cart));
     
     // Update float button count
@@ -244,20 +267,7 @@ window.addToCart = function(itemId, name, price, btnElement) {
     }
     
     updateCartUI();
-    
-    // Micro-interaction button feedback
-    const originalText = btnElement.innerText;
-    btnElement.innerText = 'تم الإضافة ✓';
-    btnElement.style.backgroundColor = '#10b981'; // Green feedback
-    btnElement.style.color = '#ffffff';
-    btnElement.disabled = true;
-    
-    setTimeout(() => {
-        btnElement.innerText = originalText;
-        btnElement.style.backgroundColor = ''; // Reset CSS
-        btnElement.style.color = '';
-        btnElement.disabled = false;
-    }, 900);
+    // The visual state synchronization is now handled dynamically in updateCartUI -> syncMenuAddButtons
 };
 
 // Increment or decrement quantity
@@ -662,7 +672,7 @@ async function loadContent() {
                                 </div>
                                 <div class="card-action">
                                     ${breadSelectHTML}
-                                    <button class="add-to-cart-btn" onclick="addToCart('${item._id}', '${item.name}', ${item.price}, this)">إضافة +</button>
+                                    <button class="add-to-cart-btn" data-item-id="${item._id}" onclick="addToCart('${item._id}', '${item.name}', ${item.price}, this)">إضافة +</button>
                                 </div>
                                 <div class="item-price" style="margin-top: 0.5rem;">${item.price} EGP</div>
                             </div>
@@ -695,7 +705,7 @@ async function loadContent() {
                 const priceHTML = offer.price ? `<div style="font-size: 1.3rem; font-weight: 800; margin-top: 0.5rem; color: white;">${offer.price} EGP</div>` : '';
                 const buttonHTML = offer.price ? `
                     <div class="card-action" style="margin-top: 0.75rem;">
-                        <button class="add-to-cart-btn" style="background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;" onclick="addToCart('${offer._id}', '${offer.title}', ${offer.price}, this)">إضافة للعرض +</button>
+                        <button class="add-to-cart-btn" data-item-id="${offer._id}" style="background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;" onclick="addToCart('${offer._id}', '${offer.title}', ${offer.price}, this)">إضافة للعرض +</button>
                     </div>
                 ` : '';
                 
@@ -717,6 +727,9 @@ async function loadContent() {
         // ---- PHONE ----
         const phone = settings && settings.phone ? settings.phone : '01012345678';
         document.getElementById('phone-display').innerText = phone;
+        
+        // Sync button states for items already in cart (from localStorage)
+        syncMenuAddButtons();
 
     } catch (error) {
         console.error('Error loading content from Sanity:', error);
