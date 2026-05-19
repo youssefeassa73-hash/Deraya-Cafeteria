@@ -636,7 +636,10 @@ async function loadContent() {
             menuSection.style.display = 'none';
         } else {
             menuSection.style.display = 'block';
-            const categoryOrder = ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
+            let categoryOrder = ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
+            if (settings && settings.menuSections && settings.menuSections.length > 0) {
+                categoryOrder = settings.menuSections;
+            }
             const categories = [...new Set(menuItems.map(item => item.category))].sort((a, b) => {
                 let indexA = categoryOrder.indexOf(a);
                 let indexB = categoryOrder.indexOf(b);

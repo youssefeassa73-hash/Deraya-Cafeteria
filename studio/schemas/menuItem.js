@@ -12,16 +12,8 @@ export default {
     {
       name: 'category',
       title: 'القسم (Category)',
+      description: 'أدخل اسم القسم هنا (تأكد من مطابقته للأقسام المضافة في إعدادات الموقع)',
       type: 'string',
-      options: {
-        list: [
-          {title: 'الفطار', value: 'الفطار'},
-          {title: 'السندوتشات', value: 'السندوتشات'},
-          {title: 'الكرييب', value: 'الكرييب'},
-          {title: 'الوجبات', value: 'الوجبات'},
-          {title: 'البيتزا', value: 'البيتزا'},
-        ],
-      },
       validation: (Rule) => Rule.required(),
     },
     {
