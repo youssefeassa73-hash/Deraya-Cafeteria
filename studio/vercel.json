@@ -5,7 +5,7 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/((?!staff.html|favicon.ico).*)",
+      "source": "/((?!staff.html|cashier.html|favicon.ico).*)",
       "destination": "/index.html"
     }
   ]

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاشة الكاشير والمبيعات - Deraya Cafeteria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: #152238;
+            --primary: #f97316;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+            --border: #223554;
+            --radius: 16px;
+            --price-color: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-badge {
+            background-color: var(--info);
+            color: white;
+            padding: 5px 12px;
+            border-radius: var(--radius);
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .status-tracker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Tabs Navigation */
+        .tabs-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            background-color: rgba(21, 34, 56, 0.5);
+            border: 2px solid var(--border);
+            color: var(--text-muted);
+            padding: 15px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--info);
+            color: var(--text-main);
+            background-color: rgba(35, 56, 90, 0.6);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background-color: var(--info);
+            border-color: var(--info);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Specific tab active styling */
+        .tab-btn.active#tab-not_confirmed {
+            background-color: var(--warning);
+            border-color: var(--warning);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+        .tab-btn.active#tab-paid {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        }
+        .tab-btn.active#tab-ready {
+            background-color: #8b5cf6;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        .tab-btn.active#tab-done {
+            background-color: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .tab-count {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* Grid list */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            align-content: start;
+            flex-grow: 1;
+        }
+
+        .order-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.25s, border-color 0.25s;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dynamic border color depending on order status */
+        .card-not_confirmed { border-right: 5px solid var(--warning); }
+        .card-paid { border-right: 5px solid var(--primary); }
+        .card-ready { border-right: 5px solid #8b5cf6; }
+        .card-done { border-right: 5px solid var(--success); }
+
+        .card-header {
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-num {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+        .card-not_confirmed .order-num { color: var(--warning); }
+        .card-paid .order-num { color: var(--primary); }
+        .card-ready .order-num { color: #8b5cf6; }
+        .card-done .order-num { color: var(--success); }
+
+        .order-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .cust-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .cust-phone {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cust-phone a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .items-list {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            font-weight: 600;
+            white-space: pre-line;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-right: 3px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .comments-box {
+            background-color: #78350f;
+            border: 1px dashed #d97706;
+            color: #fef3c7;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .price-badge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .price-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .price-amount {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--price-color);
+        }
+
+        .card-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .pay-btn {
+            width: 100%;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pay-btn:hover {
+            background-color: #059669;
+        }
+
+        .pay-btn:active {
+            transform: scale(0.98);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Columns */
+        @media (max-width: 900px) {
+            .tabs-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .tabs-container { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <span class="logo-badge">الخزينة</span>
+            <h1>شاشة الكاشير والمبيعات 💰</h1>
+        </div>
+        <div class="status-tracker">
+            <span class="pulse-dot"></span>
+            <span id="update-timer">تحديث تلقائي...</span>
+        </div>
+    </header>
+
+    <!-- Filter Tabs -->
+    <div class="tabs-container">
+        <button class="tab-btn active" id="tab-not_confirmed" onclick="switchTab('not_confirmed')">
+            <span class="tab-icon">⏳</span>
+            <span>طلبات جديدة</span>
+            <span class="tab-count" id="count-not_confirmed">0</span>
+        </button>
+        <button class="tab-btn" id="tab-paid" onclick="switchTab('paid')">
+            <span class="tab-icon">🍳</span>
+            <span>تحت التحضير</span>
+            <span class="tab-count" id="count-paid">0</span>
+        </button>
+        <button class="tab-btn" id="tab-ready" onclick="switchTab('ready')">
+            <span class="tab-icon">🔔</span>
+            <span>جاهزة للاستلام</span>
+            <span class="tab-count" id="count-ready">0</span>
+        </button>
+        <button class="tab-btn" id="tab-done" onclick="switchTab('done')">
+            <span class="tab-icon">✓</span>
+            <span>طلبات مكتملة</span>
+            <span class="tab-count" id="count-done">0</span>
+        </button>
+    </div>
+
+    <!-- Orders Grid -->
+    <div class="orders-grid" id="orders-grid">
+        <div class="empty-state">
+            <div class="empty-icon">⏳</div>
+            <h2>جاري تحميل الطلبات...</h2>
+        </div>
+    </div>
+
+    <script>
+        const SANITY_PROJECT_ID = 'ksse299y';
+        const SANITY_DATASET = 'production';
+        const SANITY_API_VERSION = '2021-06-07';
+        const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
+
+        let currentTab = 'not_confirmed';
+        let cachedOrders = [];
+        let knownOrderIds = new Set();
+        let isInitialLoad = true;
+
+        // Beautiful sound synthesizer when a new order appears
+        function playChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Note 1
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                gain1.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start();
+                osc1.stop(ctx.currentTime + 0.35);
+                
+                // Note 2
+                setTimeout(() => {
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+                    gain2.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start();
+                    osc2.stop(ctx.currentTime + 0.45);
+                }, 130);
+            } catch (e) {
+                console.log('AudioContext initialization failed or blocked:', e);
+            }
+        }
+
+        async function fetchAllOrders() {
+            // Query all orders so we can count them and display them seamlessly
+            const query = encodeURIComponent('*[_type == "order"] | order(createdAt desc)');
+            const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                cachedOrders = data.result || [];
+                
+                // Sound chime on new unpaid orders
+                let hasNewUnpaidOrder = false;
+                cachedOrders.forEach(order => {
+                    if (order.status === 'not_confirmed') {
+                        if (!knownOrderIds.has(order._id)) {
+                            knownOrderIds.add(order._id);
+                            if (!isInitialLoad) {
+                                hasNewUnpaidOrder = true;
+                            }
+                        }
+                    }
+                });
+
+                if (hasNewUnpaidOrder) {
+                    playChime();
+                }
+                isInitialLoad = false;
+
+                updateTabBadges();
+                renderFilteredOrders();
+            } catch (err) {
+                console.error('Error fetching orders:', err);
+            }
+        }
+
+        function updateTabBadges() {
+            const counts = {
+                not_confirmed: 0,
+                paid: 0,
+                ready: 0,
+                done: 0
+            };
+            
+            cachedOrders.forEach(o => {
+                if (counts.hasOwnProperty(o.status)) {
+                    counts[o.status]++;
+                }
+            });
+
+            document.getElementById('count-not_confirmed').innerText = counts.not_confirmed;
+            document.getElementById('count-paid').innerText = counts.paid;
+            document.getElementById('count-ready').innerText = counts.ready;
+            document.getElementById('count-done').innerText = counts.done;
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Remove active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            renderFilteredOrders();
+        }
+
+        function renderFilteredOrders() {
+            const grid = document.getElementById('orders-grid');
+            const filtered = cachedOrders.filter(o => o.status === currentTab);
+
+            if (filtered.length === 0) {
+                let emoji = '☕';
+                let message = 'لا توجد طلبات هنا حالياً.';
+                if (currentTab === 'not_confirmed') {
+                    emoji = '🛎️';
+                    message = 'لا توجد طلبات جديدة معلقة. رائع!';
+                } else if (currentTab === 'paid') {
+                    emoji = '🍳';
+                    message = 'المطبخ هادئ الآن. لا توجد طلبات تحت التحضير.';
+                } else if (currentTab === 'ready') {
+                    emoji = '🔔';
+                    message = 'كل الطلبات الجاهزة تم تسليمها للعملاء!';
+                }
+                
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">${emoji}</div>
+                        <h2>${message}</h2>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(order => {
+                const createdTime = new Date(order.createdAt);
+                const timeDiff = Math.round((new Date() - createdTime) / 60000);
+                const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
+                
+                let commentsHTML = '';
+                if (order.comments) {
+                    commentsHTML = `
+                        <div class="comments-box">
+                            <strong>💡 ملاحظة العميل:</strong> ${order.comments}
+                        </div>
+                    `;
+                }
+
+                // Action button depending on status
+                let actionHTML = '';
+                if (order.status === 'not_confirmed') {
+                    actionHTML = `
+                        <div class="card-footer">
+                            <button class="pay-btn" onclick="confirmPayment('${order._id}')">
+                                <span>تأكيد واستلام الدفع 💰</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="order-card card-${order.status}" id="card-${order._id}">
+                        <div class="card-header">
+                            <span class="order-num">#${order.orderNumber}</span>
+                            <span class="order-time">${timeText}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="cust-name">العميل: ${order.customerName}</div>
+                            <div class="cust-phone">الهاتف: <a href="tel:${order.customerPhone}">${order.customerPhone}</a></div>
+                            <div class="items-list">${order.items}</div>
+                            ${commentsHTML}
+                            <div class="price-badge">
+                                <span class="price-label">إجمالي الحساب:</span>
+                                <span class="price-amount">${order.totalPrice || 0} EGP</span>
+                            </div>
+                        </div>
+                        ${actionHTML}
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        async function confirmPayment(orderId) {
+            const button = document.querySelector(`#card-${orderId} .pay-btn`);
+            if (button) {
+                button.disabled = true;
+                button.innerText = 'جاري تأكيد الدفع... ⏳';
+            }
+
+            const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+            const mutations = {
+                mutations: [
+                    {
+                        patch: {
+                            id: orderId,
+                            set: {
+                                status: 'paid',
+                                paidAt: new Date().toISOString() // Stamp payment time!
+                            }
+                        }
+                    }
+                ]
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+                    },
+                    body: JSON.stringify(mutations)
+                });
+                
+                const data = await res.json();
+                console.log('Order confirmed as paid successfully:', data);
+                
+                // Smooth slide away animation before refreshing
+                const card = document.getElementById(`card-${orderId}`);
+                if (card) {
+                    card.style.transition = 'transform 0.4s, opacity 0.4s';
+                    card.style.transform = 'scale(0.9) translateY(-20px)';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        fetchAllOrders();
+                    }, 400);
+                }
+            } catch (error) {
+                console.error('Error confirming payment:', error);
+                alert('حدث خطأ أثناء حفظ الدفع. يرجى المحاولة مرة أخرى.');
+                if (button) {
+                    button.disabled = false;
+                    button.innerText = 'تأكيد واستلام الدفع 💰';
+                }
+            }
+        }
+
+        // Initialize fetching
+        fetchAllOrders();
+
+        // Auto-refresh every 12 seconds
+        setInterval(fetchAllOrders, 12000);
+    </script>
+</body>
+</html>
