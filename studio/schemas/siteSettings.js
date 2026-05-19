@@ -10,6 +10,22 @@ export default {
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'orderStatus',
+      title: 'حالة استقبال الطلبات (Ordering Status)',
+      description: 'اختر حالة استقبال الطلبات لتحديث الموقع تلقائياً (Select ordering state to update the website)',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'مفتوح واستقبال الطلبات متاح 🟢 (Available)', value: 'available'},
+          {title: 'مغلق حالياً ولا يمكن الطلب 🔴 (Closed)', value: 'closed'},
+          {title: 'مزدحم حالياً والطلب متوقف مؤقتاً 🟡 (Busy)', value: 'busy'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'available',
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: 'hiddenCategories',
       title: 'الأقسام المخفية (Hidden Menu Sections)',
       description: 'اختر الأقسام التي تريد إخفاءها من المنيو على الموقع (Select the sections you want to hide from the live menu on the website)',

@@ -20,6 +20,62 @@ document.addEventListener('DOMContentLoaded', () => {
     cleanupOldUnpaidOrders(); // Run silent background order cleaner on page load!
 });
 
+// Store Status State & Controls
+let storeStatus = 'available';
+
+function applyStoreStatus(status) {
+    storeStatus = status;
+    
+    // Remove existing store status banner if any
+    const existingBanner = document.getElementById('store-status-banner');
+    if (existingBanner) existingBanner.remove();
+    
+    if (status === 'closed' || status === 'busy') {
+        const banner = document.createElement('div');
+        banner.id = 'store-status-banner';
+        banner.dir = 'rtl';
+        
+        let bannerText = '';
+        let bgColor = '';
+        let textColor = '';
+        
+        if (status === 'closed') {
+            bannerText = '🔴 نعتذر منكم، الكافيتريا مغلقة حالياً. استقبال الطلبات الجديدة متوقف حالياً.';
+            bgColor = '#ef4444'; // red
+            textColor = '#ffffff';
+        } else if (status === 'busy') {
+            bannerText = '🟡 نعتذر منكم، الكافيتريا مزدحمة جداً حالياً والطلب متوقف مؤقتاً لتجهيز الطلبات الحالية.';
+            bgColor = '#f59e0b'; // amber
+            textColor = '#ffffff';
+        }
+        
+        banner.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: ${bgColor};
+            color: ${textColor};
+            text-align: center;
+            padding: 12px 20px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            z-index: 99999;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            font-family: 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+        
+        banner.innerHTML = bannerText;
+        document.body.prepend(banner);
+        
+        // Push the body down slightly to avoid overlapping header
+        document.body.style.paddingTop = '45px';
+    } else {
+        document.body.style.paddingTop = '0';
+    }
+}
+
 // Silent background old unpaid orders cleaner (deletes unpaid orders older than 40 minutes)
 async function cleanupOldUnpaidOrders() {
     if (!SANITY_WRITE_TOKEN) return;
@@ -103,10 +159,65 @@ function updateCartUI() {
     
     cartItemsList.innerHTML = listHTML;
     totalPriceSpan.innerText = `${grandTotal} EGP`;
+
+    // Handle closed/busy store states inside the cart modal
+    const cartView = document.getElementById('cart-view');
+    const formElement = cartView.querySelector('.checkout-form');
+    const btnElement = cartView.querySelector('.checkout-btn');
+    
+    // Remove existing warning if any
+    const existingNotice = document.getElementById('cart-status-notice');
+    if (existingNotice) existingNotice.remove();
+    
+    if (storeStatus !== 'available') {
+        if (formElement) formElement.style.display = 'none';
+        if (btnElement) btnElement.style.display = 'none';
+        
+        const noticeDiv = document.createElement('div');
+        noticeDiv.id = 'cart-status-notice';
+        noticeDiv.dir = 'rtl';
+        
+        let noticeText = '';
+        let noticeColor = '';
+        
+        if (storeStatus === 'closed') {
+            noticeText = '⚠️ <strong>نعتذر منكم، الكافيتريا مغلقة حالياً.</strong> لا يمكن إرسال الطلبات الجديدة الآن.';
+            noticeColor = '#fee2e2'; // soft red
+        } else {
+            noticeText = '⚠️ <strong>نعتذر منكم، الكافيتريا مزدحمة حالياً.</strong> تم إيقاف استقبال الطلبات مؤقتاً لتجهيز الطلبات المتراكمة.';
+            noticeColor = '#fef3c7'; // soft amber
+        }
+        
+        noticeDiv.style.cssText = `
+            background-color: ${noticeColor};
+            color: #1f2937;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            border: 1px solid rgba(0,0,0,0.05);
+        `;
+        noticeDiv.innerHTML = noticeText;
+        cartView.appendChild(noticeDiv);
+    } else {
+        if (formElement) formElement.style.display = 'block';
+        if (btnElement) btnElement.style.display = 'block';
+    }
 }
 
 // Add item to cart with selected bread options (if applicable)
 window.addToCart = function(itemId, name, price, btnElement) {
+    if (storeStatus !== 'available') {
+        if (storeStatus === 'closed') {
+            alert('🔴 نعتذر منكم، الكافيتريا مغلقة حالياً. لا يمكن استقبال طلبات جديدة.');
+        } else if (storeStatus === 'busy') {
+            alert('🟡 نعتذر منكم، الكافيتريا مزدحمة جداً حالياً والطلب متوقف مؤقتاً لتجهيز الطلبات الحالية.');
+        }
+        return;
+    }
+
     // Find optional bread selection inside the card
     const card = btnElement.closest('.card');
     const select = card.querySelector('.bread-select');
@@ -414,6 +525,12 @@ async function loadContent() {
         ]);
 
         const settings = settingsArr && settingsArr.length > 0 ? settingsArr[0] : null;
+
+        if (settings && settings.orderStatus) {
+            applyStoreStatus(settings.orderStatus);
+        } else {
+            applyStoreStatus('available');
+        }
 
         // ---- MENU ----
         const menuSection = document.getElementById('menu');
