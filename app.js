@@ -118,27 +118,49 @@ async function cleanupOldUnpaidOrders() {
     }
 }
 function syncMenuAddButtons() {
-    const cartItemIds = new Set(cart.map(item => item.itemId));
-    
-    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        const itemId = btn.getAttribute('data-item-id');
-        if (!itemId) return;
+    document.querySelectorAll('.add-btn-wrapper').forEach(wrapper => {
+        const itemId = wrapper.getAttribute('data-item-id');
+        const itemName = wrapper.getAttribute('data-item-name');
+        const itemPrice = parseFloat(wrapper.getAttribute('data-item-price'));
+        const isOffer = wrapper.getAttribute('data-is-offer') === 'true';
         
-        const isOffer = btn.innerText.includes('للعرض') || btn.closest('#offers-container') !== null;
+        const actionDiv = wrapper.closest('.card-action');
+        const select = actionDiv ? actionDiv.querySelector('.bread-select') : null;
+        let optionText = '';
+        if (select) optionText = select.value;
+        const displayName = optionText ? `${itemName} (${optionText})` : itemName;
         
-        if (cartItemIds.has(itemId)) {
-            btn.innerText = isOffer ? 'تم إضافة العرض ✓' : 'تم الإضافة ✓';
-            btn.style.backgroundColor = '#10b981';
-            btn.style.borderColor = '#10b981';
-            btn.style.color = '#ffffff';
+        const cartItem = cart.find(item => item.displayName === displayName);
+        
+        if (cartItem) {
+            wrapper.innerHTML = `
+                <div class="qty-control-inline" style="display: flex; align-items: center; justify-content: space-between; background-color: #10b981; color: white; border-radius: var(--radius); padding: 0.25rem 0.5rem; font-weight: bold; width: 100%;">
+                    <button onclick="updateItemQtyGlobal('${displayName}', 1)" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0 0.5rem;">+</button>
+                    <span style="font-size: 1.1rem;">${cartItem.quantity}</span>
+                    <button onclick="updateItemQtyGlobal('${displayName}', -1)" style="background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 0 0.5rem; line-height: 1;">-</button>
+                </div>
+            `;
         } else {
-            btn.innerText = isOffer ? 'إضافة للعرض +' : 'إضافة +';
-            btn.style.backgroundColor = isOffer ? 'white' : '';
-            btn.style.borderColor = '';
-            btn.style.color = isOffer ? 'var(--primary)' : '';
+            const btnStyle = isOffer ? 'background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;' : '';
+            const btnText = isOffer ? 'إضافة للعرض +' : 'إضافة +';
+            wrapper.innerHTML = `
+                <button class="add-to-cart-btn" style="${btnStyle}" onclick="addToCart('${itemId}', '${itemName}', ${itemPrice}, this)">${btnText}</button>
+            `;
         }
     });
 }
+
+// Global update qty helper for inline controls
+window.updateItemQtyGlobal = function(displayName, delta) {
+    const existingIndex = cart.findIndex(item => item.displayName === displayName);
+    if (existingIndex > -1) {
+        cart[existingIndex].quantity += delta;
+        if (cart[existingIndex].quantity <= 0) {
+            cart.splice(existingIndex, 1);
+        }
+        updateCartUI();
+    }
+};
 
 // Update the Cart count, totals, and dropdown list in the modal
 function updateCartUI() {
@@ -256,10 +278,8 @@ window.addToCart = function(itemId, name, price, btnElement) {
     const existingIndex = cart.findIndex(item => item.displayName === displayName);
     
     if (existingIndex > -1) {
-        // Toggle off: remove item completely from cart if clicked again
-        cart.splice(existingIndex, 1);
+        cart[existingIndex].quantity += 1;
     } else {
-        // Toggle on: add new item to cart
         cart.push({
             itemId: itemId,
             displayName: displayName,
@@ -659,7 +679,7 @@ async function loadContent() {
                         let breadSelectHTML = '';
                         if (item.breadOptions && item.breadOptions.length > 0) {
                             breadSelectHTML = `
-                                <select class="bread-select">
+                                <select class="bread-select" onchange="syncMenuAddButtons()">
                                     ${item.breadOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                                 </select>
                             `;
@@ -674,7 +694,9 @@ async function loadContent() {
                                 </div>
                                 <div class="card-action">
                                     ${breadSelectHTML}
-                                    <button class="add-to-cart-btn" data-item-id="${item._id}" onclick="addToCart('${item._id}', '${item.name}', ${item.price}, this)">إضافة +</button>
+                                    <div class="add-btn-wrapper" data-item-id="${item._id}" data-item-name="${item.name}" data-item-price="${item.price}" data-is-offer="false">
+                                        <button class="add-to-cart-btn" onclick="addToCart('${item._id}', '${item.name}', ${item.price}, this)">إضافة +</button>
+                                    </div>
                                 </div>
                                 <div class="item-price" style="margin-top: 0.5rem;">${item.price} EGP</div>
                             </div>
@@ -707,7 +729,9 @@ async function loadContent() {
                 const priceHTML = offer.price ? `<div style="font-size: 1.3rem; font-weight: 800; margin-top: 0.5rem; color: white;">${offer.price} EGP</div>` : '';
                 const buttonHTML = offer.price ? `
                     <div class="card-action" style="margin-top: 0.75rem;">
-                        <button class="add-to-cart-btn" data-item-id="${offer._id}" style="background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;" onclick="addToCart('${offer._id}', '${offer.title}', ${offer.price}, this)">إضافة للعرض +</button>
+                        <div class="add-btn-wrapper" data-item-id="${offer._id}" data-item-name="${offer.title}" data-item-price="${offer.price}" data-is-offer="true">
+                            <button class="add-to-cart-btn" style="background-color: white; color: var(--primary); font-weight: 800; width: 100%; border: none;" onclick="addToCart('${offer._id}', '${offer.title}', ${offer.price}, this)">إضافة للعرض +</button>
+                        </div>
                     </div>
                 ` : '';
                 
