@@ -10,8 +10,9 @@ export default {
       options: {
         list: [
           {title: 'غير مؤكد (Not Confirmed) ⚠️', value: 'not_confirmed'},
-          {title: 'مدفوع (Paid) 💰', value: 'paid'},
-          {title: 'مكتمل (Done) ✓', value: 'done'},
+          {title: 'مدفوع / قيد التحضير (Paid / Preparing) 🍳', value: 'paid'},
+          {title: 'جاهز للاستلام (Ready to Pick Up) 🔔', value: 'ready'},
+          {title: 'مكتمل / تم التسليم (Done / Delivered) ✓', value: 'done'},
         ],
         layout: 'radio',
         direction: 'horizontal',

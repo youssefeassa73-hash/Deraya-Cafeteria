@@ -15,6 +15,9 @@
             --success: #10b981;
             --border: #334155;
             --radius: 12px;
+            --amber-bg: #78350f;
+            --amber-border: #d97706;
+            --amber-text: #fef3c7;
         }
 
         * {
@@ -29,6 +32,8 @@
             color: var(--text-main);
             padding: 20px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -37,7 +42,7 @@
             align-items: center;
             border-bottom: 2px solid var(--border);
             padding-bottom: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .header-title {
@@ -82,10 +87,72 @@
             100% { transform: scale(0.9); opacity: 0.6; }
         }
 
-        .grid-container {
+        /* 2-Column Grid Layout */
+        .kds-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            flex-grow: 1;
+        }
+
+        .kds-column {
+            background-color: rgba(30, 41, 59, 0.4);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+
+        .kds-column.ready-column-wrapper {
+            border-color: rgba(16, 185, 129, 0.3);
+            background-color: rgba(16, 185, 129, 0.02);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ready-column-wrapper .column-header {
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .column-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .column-title span.count-badge {
+            background-color: var(--border);
+            color: var(--text-main);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .preparing-column-wrapper .column-title { color: #f97316; }
+        .ready-column-wrapper .column-title { color: #10b981; }
+
+        .preparing-column-wrapper span.count-badge { background-color: rgba(249, 115, 22, 0.2); color: #fdba74; }
+        .ready-column-wrapper span.count-badge { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        .column-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            align-content: start;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .order-card {
@@ -96,16 +163,39 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
         }
 
-        .order-card:hover {
+        /* Specific style for preparing cards */
+        .preparing-card {
+            border-right: 4px solid var(--primary);
+        }
+        .preparing-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
         }
 
+        /* Pulsing Glow for Ready Cards */
+        .ready-card {
+            border-color: rgba(16, 185, 129, 0.6);
+            border-right: 4px solid var(--success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+            animation: readyGlow 2.5s infinite;
+        }
+        .ready-card:hover {
+            border-color: var(--success);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes readyGlow {
+            0% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.1); }
+            50% { box-shadow: 0 0 22px rgba(16, 185, 129, 0.25); }
+            100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.1); }
+        }
+
         .card-header {
-            padding: 15px;
+            padding: 12px 15px;
             background-color: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -114,64 +204,62 @@
         }
 
         .order-num {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 900;
-            color: var(--primary);
         }
 
+        .preparing-card .order-num { color: var(--primary); }
+        .ready-card .order-num { color: var(--success); }
+
         .order-time {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
         }
 
         .card-body {
-            padding: 20px;
+            padding: 15px;
             flex-grow: 1;
         }
 
         .cust-name {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--text-main);
         }
 
         .items-list {
-            font-size: 1.25rem;
-            line-height: 1.6;
+            font-size: 1.15rem;
+            line-height: 1.5;
             font-weight: 600;
             white-space: pre-line;
             background: rgba(0,0,0,0.15);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            border-right: 4px solid var(--primary);
+            margin-bottom: 10px;
         }
 
         .comments-box {
-            background-color: #78350f;
-            border: 1px dashed #d97706;
-            color: #fef3c7;
-            padding: 12px;
+            background-color: var(--amber-bg);
+            border: 1px dashed var(--amber-border);
+            color: var(--amber-text);
+            padding: 10px;
             border-radius: 8px;
-            font-size: 1rem;
-            margin-top: 10px;
-            line-height: 1.4;
+            font-size: 0.92rem;
+            line-height: 1.3;
         }
 
         .card-footer {
-            padding: 15px;
+            padding: 12px 15px;
             border-top: 1px solid var(--border);
             background-color: rgba(0, 0, 0, 0.1);
         }
 
-        .done-btn {
+        .action-btn {
             width: 100%;
-            background-color: var(--success);
-            color: white;
             border: none;
-            padding: 12px;
-            font-size: 1.2rem;
+            padding: 10px;
+            font-size: 1.1rem;
             font-weight: 800;
             border-radius: 8px;
             cursor: pointer;
@@ -179,38 +267,47 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            color: white;
         }
 
-        .done-btn:hover {
+        .preparing-card .action-btn {
+            background-color: var(--primary);
+        }
+        .preparing-card .action-btn:hover {
+            background-color: #ea580c;
+        }
+
+        .ready-card .action-btn {
+            background-color: var(--success);
+        }
+        .ready-card .action-btn:hover {
             background-color: #059669;
         }
 
-        .done-btn:active {
+        .action-btn:active {
             transform: scale(0.98);
         }
 
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px 15px;
             color: var(--text-muted);
         }
 
         .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
+            font-size: 3.5rem;
+            margin-bottom: 12px;
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
+        /* Responsive Columns for Mobile */
+        @media (max-width: 820px) {
+            .kds-grid {
+                grid-template-columns: 1fr;
+            }
             body {
                 padding: 10px;
-            }
-            header {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
             }
         }
     </style>
@@ -227,10 +324,37 @@
         </div>
     </header>
 
-    <div class="grid-container" id="orders-grid">
-        <div class="empty-state">
-            <div class="empty-icon">⏳</div>
-            <h2>جاري تحميل الطلبات المدفوعة...</h2>
+    <div class="kds-grid">
+        <!-- Column 1: Preparing -->
+        <div class="kds-column preparing-column-wrapper">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>قيد التحضير 👨‍🍳</span>
+                    <span class="count-badge" id="prep-count">0</span>
+                </div>
+            </div>
+            <div class="column-cards-container" id="preparing-list">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <h2>جاري تحميل الطلبات...</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2: Ready for pickup -->
+        <div class="kds-column ready-column-wrapper">
+            <div class="column-header">
+                <div class="column-title">
+                    <span>جاهز للاستلام 🔔</span>
+                    <span class="count-badge" id="ready-count">0</span>
+                </div>
+            </div>
+            <div class="column-cards-container" id="ready-list">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <h2>جاري تحميل الطلبات...</h2>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -241,7 +365,8 @@
         const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
 
         async function fetchPaidOrders() {
-            const query = encodeURIComponent('*[_type == "order" && status == "paid"] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt, paidAt}');
+            // Fetch both "paid" (preparing) and "ready" (pick up) orders
+            const query = encodeURIComponent('*[_type == "order" && (status == "paid" || status == "ready")] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt, paidAt, status}');
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
             
             try {
@@ -250,7 +375,7 @@
                 const orders = data.result || [];
                 
                 // Automatically stamp any paid orders that don't have paidAt set yet
-                const unstampedOrders = orders.filter(o => !o.paidAt);
+                const unstampedOrders = orders.filter(o => o.status === 'paid' && !o.paidAt);
                 if (unstampedOrders.length > 0) {
                     stampPaidOrders(unstampedOrders);
                 }
@@ -258,12 +383,14 @@
                 renderOrders(orders);
             } catch (error) {
                 console.error('Error fetching orders:', error);
-                document.getElementById('orders-grid').innerHTML = `
+                const errorHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">❌</div>
-                        <h2>خطأ في الاتصال بالخادم. سنحاول مرة أخرى...</h2>
+                        <h2>خطأ في الاتصال بالخادم.</h2>
                     </div>
                 `;
+                document.getElementById('preparing-list').innerHTML = errorHTML;
+                document.getElementById('ready-list').innerHTML = errorHTML;
             }
         }
 
@@ -294,66 +421,114 @@
         }
 
         function renderOrders(orders) {
-            const grid = document.getElementById('orders-grid');
+            const prepList = document.getElementById('preparing-list');
+            const readyList = document.getElementById('ready-list');
             
-            if (!orders || orders.length === 0) {
-                grid.innerHTML = `
+            const preparingOrders = orders.filter(o => o.status === 'paid');
+            const readyOrders = orders.filter(o => o.status === 'ready');
+            
+            // Update column badges count
+            document.getElementById('prep-count').innerText = preparingOrders.length;
+            document.getElementById('ready-count').innerText = readyOrders.length;
+
+            // 1. Render Preparing Orders
+            if (preparingOrders.length === 0) {
+                prepList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">☕🍔</div>
-                        <h2>لا توجد طلبات نشطة حالياً.</h2>
-                        <p style="margin-top: 10px; font-size: 0.95rem; color: var(--text-muted);">الطلبات الجديدة المدفوعة ستظهر هنا تلقائياً فوراً!</p>
+                        <h2>لا توجد طلبات قيد التحضير.</h2>
                     </div>
                 `;
-                return;
-            }
-
-            let html = '';
-            orders.forEach(order => {
-                // Timer starts exactly when status was changed to Paid (falls back to createdAt if stamp isn't written yet)
-                const baseTime = order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt);
-                const timeDiff = Math.round((new Date() - baseTime) / 60000); // In minutes
-                const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
-                
-                let commentsHTML = '';
-                if (order.comments) {
-                    commentsHTML = `
-                        <div class="comments-box">
-                            <strong>💡 ملاحظة العميل:</strong> ${order.comments}
+            } else {
+                let html = '';
+                preparingOrders.forEach(order => {
+                    const baseTime = order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt);
+                    const timeDiff = Math.round((new Date() - baseTime) / 60000);
+                    const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
+                    
+                    let commentsHTML = '';
+                    if (order.comments) {
+                        commentsHTML = `
+                            <div class="comments-box">
+                                <strong>💡 ملاحظة العميل:</strong> ${order.comments}
+                            </div>
+                        `;
+                    }
+                    
+                    const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
+                    
+                    html += `
+                        <div class="order-card preparing-card" id="card-${order._id}">
+                            <div class="card-header">
+                                <span class="order-num">#${order.orderNumber}</span>
+                                <span class="order-time">${timeText}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="cust-name">العميل: ${order.customerName}</div>
+                                <div class="items-list">${cleanItems}</div>
+                                ${commentsHTML}
+                            </div>
+                            <div class="card-footer">
+                                <button class="action-btn" onclick="updateOrderStatus('${order._id}', 'ready')">
+                                    <span>جاهز للاستلام 🔔</span>
+                                </button>
+                            </div>
                         </div>
                     `;
-                }
+                });
+                prepList.innerHTML = html;
+            }
 
-                // Strip pricing like (EGP 160) or (160 EGP) from items list
-                const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
-
-                html += `
-                    <div class="order-card" id="card-${order._id}">
-                        <div class="card-header">
-                            <span class="order-num">#${order.orderNumber}</span>
-                            <span class="order-time">${timeText}</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="cust-name">العميل: ${order.customerName}</div>
-                            <div class="items-list">${cleanItems}</div>
-                            ${commentsHTML}
-                        </div>
-                        <div class="card-footer">
-                            <button class="done-btn" onclick="markOrderAsDone('${order._id}')">
-                                <span>تم التحضير والتسليم ✓</span>
-                            </button>
-                        </div>
+            // 2. Render Ready to Pick Up Orders
+            if (readyOrders.length === 0) {
+                readyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🛎️</div>
+                        <h2>لا توجد طلبات جاهزة للاستلام.</h2>
                     </div>
                 `;
-            });
-
-            grid.innerHTML = html;
+            } else {
+                let html = '';
+                readyOrders.forEach(order => {
+                    let commentsHTML = '';
+                    if (order.comments) {
+                        commentsHTML = `
+                            <div class="comments-box">
+                                <strong>💡 ملاحظة العميل:</strong> ${order.comments}
+                            </div>
+                        `;
+                    }
+                    
+                    const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
+                    
+                    html += `
+                        <div class="order-card ready-card" id="card-${order._id}">
+                            <div class="card-header">
+                                <span class="order-num">#${order.orderNumber}</span>
+                                <span class="order-time">جاهز للتسليم</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="cust-name">العميل: ${order.customerName}</div>
+                                <div class="items-list">${cleanItems}</div>
+                                ${commentsHTML}
+                            </div>
+                            <div class="card-footer">
+                                <button class="action-btn" onclick="updateOrderStatus('${order._id}', 'done')">
+                                    <span>تم التسليم والإنهاء ✓</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                readyList.innerHTML = html;
+            }
         }
 
-        async function markOrderAsDone(orderId) {
-            const button = document.querySelector(`#card-${orderId} .done-btn`);
+        async function updateOrderStatus(orderId, nextStatus) {
+            const button = document.querySelector(`#card-${orderId} .action-btn`);
             if (button) {
                 button.disabled = true;
-                button.innerText = 'جاري الحفظ... ⏳';
+                button.innerText = 'جاري التحديث... ⏳';
             }
 
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
@@ -363,7 +538,7 @@
                         patch: {
                             id: orderId,
                             set: {
-                                status: 'done'
+                                status: nextStatus
                             }
                         }
                     }
@@ -381,24 +556,24 @@
                 });
                 
                 const data = await res.json();
-                console.log('Order marked as done successfully:', data);
+                console.log(`Order status updated to ${nextStatus} successfully:`, data);
                 
-                // Add slick slide away effect
+                // Add slick slide away/fade animation before refreshing
                 const card = document.getElementById(`card-${orderId}`);
                 if (card) {
-                    card.style.transition = 'transform 0.4s, opacity 0.4s';
-                    card.style.transform = 'scale(0.9) translateY(-20px)';
+                    card.style.transition = 'transform 0.35s, opacity 0.35s';
+                    card.style.transform = 'scale(0.9) translateY(-15px)';
                     card.style.opacity = '0';
                     setTimeout(() => {
                         fetchPaidOrders();
-                    }, 400);
+                    }, 350);
                 }
             } catch (error) {
-                console.error('Error marking order as done:', error);
-                alert('حدث خطأ أثناء تغيير حالة الطلب. يرجى المحاولة مرة أخرى.');
+                console.error(`Error updating order status to ${nextStatus}:`, error);
+                alert('حدث خطأ أثناء تحديث حالة الطلب. يرجى المحاولة مرة أخرى.');
                 if (button) {
                     button.disabled = false;
-                    button.innerText = 'تم التحضير والتسليم ✓';
+                    button.innerText = nextStatus === 'ready' ? 'جاهز للاستلام 🔔' : 'تم التسليم والإنهاء ✓';
                 }
             }
         }
