@@ -88,6 +88,16 @@ const myStructure = (S) =>
           S.documentTypeList('menuItem')
             .title('كل الأطباق')
         ),
+      
+      S.divider(),
+
+      // Orders (الطلبات)
+      S.listItem()
+        .title('الطلبات (Orders)')
+        .child(
+          S.documentTypeList('order')
+            .title('الطلبات (Orders)')
+        ),
     ])
 
 export default defineConfig({
