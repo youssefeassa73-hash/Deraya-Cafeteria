@@ -653,12 +653,15 @@ async function loadContent() {
         // ---- OFFERS ----
         const offersSection = document.getElementById('offers');
         const offersContainer = document.getElementById('offers-container');
+        const offersNavLink = document.querySelector('nav a[href="#offers"]');
         offersContainer.innerHTML = '';
 
-        if (!offers || offers.length === 0) {
+        if (!offers || offers.length === 0 || (settings && settings.hideOffers === true)) {
             offersSection.style.display = 'none';
+            if (offersNavLink) offersNavLink.style.display = 'none';
         } else {
             offersSection.style.display = 'block';
+            if (offersNavLink) offersNavLink.style.display = 'inline-block';
             offers.forEach(offer => {
                 const priceHTML = offer.price ? `<div style="font-size: 1.3rem; font-weight: 800; margin-top: 0.5rem; color: white;">${offer.price} EGP</div>` : '';
                 const buttonHTML = offer.price ? `

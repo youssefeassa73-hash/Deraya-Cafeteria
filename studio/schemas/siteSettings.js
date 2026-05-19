@@ -41,6 +41,13 @@ export default {
         ],
       },
     },
+    {
+      name: 'hideOffers',
+      title: 'إخفاء قسم العروض (Hide Offers Section) 🎁',
+      description: 'فعل هذا الخيار لإخفاء قسم العروض والخصومات من الموقع تماماً (Toggle to hide all offers/discounts on the website)',
+      type: 'boolean',
+      initialValue: false,
+    },
   ],
   preview: {
     select: {
