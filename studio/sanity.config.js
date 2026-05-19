@@ -4,8 +4,14 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas/index.js'
 
 // Define the custom structure to group items by section
-const myStructure = (S) =>
-  S.list()
+const myStructure = async (S, context) => {
+  const client = context.getClient({apiVersion: '2021-06-07'});
+  const settings = await client.fetch('*[_type == "siteSettings"][0]');
+  const dynamicSections = settings?.menuSections && settings.menuSections.length > 0 
+    ? settings.menuSections 
+    : ['الفطار', 'السندوتشات', 'الكرييب', 'الوجبات', 'البيتزا'];
+
+  return S.list()
     .title('Deraya Cafeteria')
     .items([
       // 1. NOT CONFIRMED ORDERS (الطلبات الجديدة)
@@ -68,54 +74,25 @@ const myStructure = (S) =>
 
               S.divider(),
 
-              // Menu by Category/Section
+              // Menu by Category/Section (DYNAMIC!)
               S.listItem()
                 .title('أقسام المنيو (Menu Sections)')
                 .child(
                   S.list()
                     .title('أقسام المنيو (Menu Sections)')
-                    .items([
-                      S.listItem()
-                        .title('الفطار (Breakfast)')
-                        .child(
-                          S.documentList()
-                            .title('الفطار')
-                            .schemaType('menuItem')
-                            .filter('_type == "menuItem" && category == "الفطار"')
-                        ),
-                      S.listItem()
-                        .title('السندوتشات (Sandwiches)')
-                        .child(
-                          S.documentList()
-                            .title('السندوتشات')
-                            .schemaType('menuItem')
-                            .filter('_type == "menuItem" && category == "السندوتشات"')
-                        ),
-                      S.listItem()
-                        .title('الكرييب (Crepes)')
-                        .child(
-                          S.documentList()
-                            .title('الكرييب')
-                            .schemaType('menuItem')
-                            .filter('_type == "menuItem" && category == "الكرييب"')
-                        ),
-                      S.listItem()
-                        .title('الوجبات (Meals)')
-                        .child(
-                          S.documentList()
-                            .title('الوجبات')
-                            .schemaType('menuItem')
-                            .filter('_type == "menuItem" && category == "الوجبات"')
-                        ),
-                      S.listItem()
-                        .title('البيتزا (Pizza)')
-                        .child(
-                          S.documentList()
-                            .title('البيتزا')
-                            .schemaType('menuItem')
-                            .filter('_type == "menuItem" && category == "البيتزا"')
-                        ),
-                    ])
+                    .items(
+                      dynamicSections.map(section => 
+                        S.listItem()
+                          .title(section)
+                          .child(
+                            S.documentList()
+                              .title(section)
+                              .schemaType('menuItem')
+                              .filter('_type == "menuItem" && category == $cat')
+                              .params({cat: section})
+                          )
+                      )
+                    )
                 ),
               
               S.divider(),
@@ -130,6 +107,7 @@ const myStructure = (S) =>
             ])
         ),
     ])
+}
 
 export default defineConfig({
   name: 'deraya-cafeteria',
