@@ -321,8 +321,24 @@ window.processCheckout = async function() {
         return;
     }
     
-    // Generate unique random 4-digit order number
-    const orderNumber = Math.floor(1000 + Math.random() * 9000);
+    // Fetch latest order from Sanity to increment order number (starts at 1, resets at 999)
+    let orderNumber = 1;
+    try {
+        const query = '*[_type == "order"] | order(createdAt desc)[0]{orderNumber}';
+        const latestOrder = await sanityQuery(query);
+        if (latestOrder && latestOrder.orderNumber) {
+            const lastNum = parseInt(latestOrder.orderNumber, 10);
+            if (!isNaN(lastNum) && lastNum >= 1 && lastNum < 999) {
+                orderNumber = lastNum + 1;
+            } else if (lastNum >= 999) {
+                orderNumber = 1;
+            }
+        }
+    } catch (err) {
+        console.error('Error fetching latest order number:', err);
+        // Fallback to a random number between 1 and 999 if query fails, to guarantee checkout succeeds
+        orderNumber = Math.floor(1 + Math.random() * 999);
+    }
     
     // Build ordered items string text for receipt details and Sanity database representation
     let receiptHTML = '<h4 style="margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">تفاصيل الطلب:</h4>';
