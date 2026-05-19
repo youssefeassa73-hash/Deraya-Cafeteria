@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاشة تحضير المطبخ - Deraya Cafeteria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #f97316;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --border: #334155;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: var(--radius);
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .status-tracker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .order-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .order-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-num {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .order-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .cust-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .items-list {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            font-weight: 600;
+            white-space: pre-line;
+            background: rgba(0,0,0,0.15);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-right: 4px solid var(--primary);
+        }
+
+        .comments-box {
+            background-color: #78350f;
+            border: 1px dashed #d97706;
+            color: #fef3c7;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .card-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .done-btn {
+            width: 100%;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .done-btn:hover {
+            background-color: #059669;
+        }
+
+        .done-btn:active {
+            transform: scale(0.98);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <span class="logo-badge">المطبخ</span>
+            <h1>شاشة تحضير الطلبات 🍳</h1>
+        </div>
+        <div class="status-tracker">
+            <span class="pulse-dot"></span>
+            <span id="update-timer">تحديث تلقائي...</span>
+        </div>
+    </header>
+
+    <div class="grid-container" id="orders-grid">
+        <div class="empty-state">
+            <div class="empty-icon">⏳</div>
+            <h2>جاري تحميل الطلبات المدفوعة...</h2>
+        </div>
+    </div>
+
+    <script>
+        const SANITY_PROJECT_ID = 'ksse299y';
+        const SANITY_DATASET = 'production';
+        const SANITY_API_VERSION = '2021-06-07';
+        const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
+
+        async function fetchPaidOrders() {
+            const query = encodeURIComponent('*[_type == "order" && status == "paid"] | order(createdAt asc){_id, orderNumber, customerName, customerPhone, items, comments, createdAt}');
+            const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                renderOrders(data.result);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                document.getElementById('orders-grid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <h2>خطأ في الاتصال بالخادم. سنحاول مرة أخرى...</h2>
+                    </div>
+                `;
+            }
+        }
+
+        function renderOrders(orders) {
+            const grid = document.getElementById('orders-grid');
+            
+            if (!orders || orders.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">☕🍔</div>
+                        <h2>لا توجد طلبات نشطة حالياً.</h2>
+                        <p style="margin-top: 10px; font-size: 0.95rem; color: var(--text-muted);">الطلبات الجديدة المدفوعة ستظهر هنا تلقائياً فوراً!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            orders.forEach(order => {
+                const createdTime = new Date(order.createdAt);
+                const timeDiff = Math.round((new Date() - createdTime) / 60000); // In minutes
+                const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
+                
+                let commentsHTML = '';
+                if (order.comments) {
+                    commentsHTML = `
+                        <div class="comments-box">
+                            <strong>💡 ملاحظة العميل:</strong> ${order.comments}
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="order-card" id="card-${order._id}">
+                        <div class="card-header">
+                            <span class="order-num">#${order.orderNumber}</span>
+                            <span class="order-time">${timeText}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="cust-name">العميل: ${order.customerName}</div>
+                            <div class="items-list">${order.items}</div>
+                            ${commentsHTML}
+                        </div>
+                        <div class="card-footer">
+                            <button class="done-btn" onclick="markOrderAsDone('${order._id}')">
+                                <span>تم التحضير والتسليم ✓</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        async function markOrderAsDone(orderId) {
+            const button = document.querySelector(`#card-${orderId} .done-btn`);
+            if (button) {
+                button.disabled = true;
+                button.innerText = 'جاري الحفظ... ⏳';
+            }
+
+            const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/mutate/${SANITY_DATASET}`;
+            const mutations = {
+                mutations: [
+                    {
+                        patch: {
+                            id: orderId,
+                            set: {
+                                status: 'done'
+                            }
+                        }
+                    }
+                ]
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+                    },
+                    body: JSON.stringify(mutations)
+                });
+                
+                const data = await res.json();
+                console.log('Order marked as done successfully:', data);
+                
+                // Add slick slide away effect
+                const card = document.getElementById(`card-${orderId}`);
+                if (card) {
+                    card.style.transition = 'transform 0.4s, opacity 0.4s';
+                    card.style.transform = 'scale(0.9) translateY(-20px)';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        fetchPaidOrders();
+                    }, 400);
+                }
+            } catch (error) {
+                console.error('Error marking order as done:', error);
+                alert('حدث خطأ أثناء تغيير حالة الطلب. يرجى المحاولة مرة أخرى.');
+                if (button) {
+                    button.disabled = false;
+                    button.innerText = 'تم التحضير والتسليم ✓';
+                }
+            }
+        }
+
+        // Fetch on boot
+        fetchPaidOrders();
+
+        // Auto-refresh every 15 seconds
+        setInterval(fetchPaidOrders, 15000);
+    </script>
+</body>
+</html>
