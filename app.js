@@ -12,6 +12,7 @@ function sanityQuery(query) {
 
 // ---- CART SYSTEM STATE & CONTROLS ----
 let cart = JSON.parse(localStorage.getItem('cafeteria_cart')) || [];
+let globalSettings = null;
 
 // Initialize or update the cart on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -365,6 +366,17 @@ window.processCheckout = async function() {
         </div>
     `;
     
+    // Add Vodafone Cash / Online wallet payment note block
+    const walletNum = (globalSettings && globalSettings.walletNumber) ? globalSettings.walletNumber : '01096441391';
+    receiptHTML += `
+        <div style="margin-top: 1rem; border-top: 2px solid var(--border); padding-top: 0.75rem; text-align: center; font-size: 0.95rem; line-height: 1.5; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 12px; border-radius: var(--radius); color: var(--text-main);" dir="rtl">
+            <div style="font-weight: 800; color: #3b82f6; margin-bottom: 0.25rem; font-size: 1.05rem;">💳 للدفع الإلكتروني أونلاين:</div>
+            <div>برجاء تحويل المبلغ إلى الرقم:</div>
+            <div style="font-size: 1.35rem; font-weight: 900; letter-spacing: 1px; color: #10b981; margin: 0.35rem 0;">${walletNum}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">* يجب تصوير إيصال التحويل الناجح وعرضه للكاشير لتأكيد طلبك واستلام وجبتك! *</div>
+        </div>
+    `;
+    
     if (comments) {
         receiptHTML += `
             <div style="margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.5rem; text-align: right; font-size: 0.85rem; color: #b45309; background-color: #fffbeb; padding: 8px; border-radius: var(--radius);">
@@ -575,6 +587,7 @@ async function loadContent() {
         ]);
 
         const settings = settingsArr && settingsArr.length > 0 ? settingsArr[0] : null;
+        globalSettings = settings;
 
         if (settings && settings.orderStatus) {
             applyStoreStatus(settings.orderStatus);

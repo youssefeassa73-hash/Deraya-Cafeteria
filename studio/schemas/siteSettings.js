@@ -48,6 +48,13 @@ export default {
       type: 'boolean',
       initialValue: false,
     },
+    {
+      name: 'walletNumber',
+      title: 'رقم محفظة الدفع الإلكتروني أونلاين (Online Wallet Number) 💳',
+      description: 'أدخل رقم المحفظة الإلكترونية (فودافون كاش، اتصالات كاش، إلخ) لاستقبال التحويلات. سيتم عرضه للزبائن في إيصال الشراء أونلاين.',
+      type: 'string',
+      initialValue: '01096441391',
+    },
   ],
   preview: {
     select: {
