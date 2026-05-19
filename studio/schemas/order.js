@@ -4,6 +4,22 @@ export default {
   type: 'document',
   fields: [
     {
+      name: 'status',
+      title: 'حالة الطلب (Order Status)',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'غير مؤكد (Not Confirmed) ⚠️', value: 'not_confirmed'},
+          {title: 'مدفوع (Paid) 💰', value: 'paid'},
+          {title: 'مكتمل (Done) ✓', value: 'done'},
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'not_confirmed',
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: 'orderNumber',
       title: 'رقم الطلب (Order Number)',
       type: 'string',
@@ -31,21 +47,6 @@ export default {
       name: 'totalPrice',
       title: 'السعر الإجمالي (Total Price - EGP)',
       type: 'number',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'status',
-      title: 'حالة الطلب (Order Status)',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'غير مؤكد (Not Confirmed)', value: 'not_confirmed'},
-          {title: 'مدفوع (Paid)', value: 'paid'},
-          {title: 'مكتمل (Done)', value: 'done'},
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'not_confirmed',
       validation: (Rule) => Rule.required(),
     },
     {
