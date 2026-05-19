@@ -8,95 +8,126 @@ const myStructure = (S) =>
   S.list()
     .title('Deraya Cafeteria')
     .items([
-      // Site Settings (Singleton)
+      // 1. NOT CONFIRMED ORDERS (الطلبات الجديدة)
       S.listItem()
-        .title('إعدادات الموقع (Site Settings)')
+        .title('الطلبات الجديدة ⚠️ (New Orders)')
         .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
-        ),
-      
-      S.divider(),
-
-      // Special Offers
-      S.listItem()
-        .title('العروض الخاصة (Special Offers)')
-        .child(
-          S.documentTypeList('offer')
-            .title('العروض الخاصة (Special Offers)')
+          S.documentList()
+            .title('الطلبات الجديدة')
+            .schemaType('order')
+            .filter('_type == "order" && status == "not_confirmed"')
         ),
 
+      // 2. PAID ORDERS (الطلبات المدفوعة)
+      S.listItem()
+        .title('الطلبات المدفوعة 💰 (Paid Orders)')
+        .child(
+          S.documentList()
+            .title('الطلبات المدفوعة')
+            .schemaType('order')
+            .filter('_type == "order" && status == "paid"')
+        ),
+
+      // 3. DONE ORDERS (الطلبات المكتملة)
+      S.listItem()
+        .title('الطلبات المكتملة ✓ (Done Orders)')
+        .child(
+          S.documentList()
+            .title('الطلبات المكتملة')
+            .schemaType('order')
+            .filter('_type == "order" && status == "done"')
+        ),
+
       S.divider(),
 
-      // Menu by Category/Section
+      // 4. MENU & SETTINGS FOLDER (ALL COLLAPSED SECTIONS)
       S.listItem()
-        .title('أقسام المنيو (Menu Sections)')
+        .title('إدارة الموقع والمنيو ⚙️ (Menu & Site Settings)')
         .child(
           S.list()
-            .title('أقسام المنيو (Menu Sections)')
+            .title('إدارة الموقع والمنيو')
             .items([
+              // Site Settings (Singleton)
               S.listItem()
-                .title('الفطار (Breakfast)')
+                .title('إعدادات الموقع (Site Settings)')
                 .child(
-                  S.documentList()
-                    .title('الفطار')
-                    .schemaType('menuItem')
-                    .filter('_type == "menuItem" && category == "الفطار"')
+                  S.document()
+                    .schemaType('siteSettings')
+                    .documentId('siteSettings')
                 ),
+              
+              S.divider(),
+
+              // Special Offers
               S.listItem()
-                .title('السندوتشات (Sandwiches)')
+                .title('العروض الخاصة (Special Offers)')
                 .child(
-                  S.documentList()
-                    .title('السندوتشات')
-                    .schemaType('menuItem')
-                    .filter('_type == "menuItem" && category == "السندوتشات"')
+                  S.documentTypeList('offer')
+                    .title('العروض الخاصة (Special Offers)')
                 ),
+
+              S.divider(),
+
+              // Menu by Category/Section
               S.listItem()
-                .title('الكرييب (Crepes)')
+                .title('أقسام المنيو (Menu Sections)')
                 .child(
-                  S.documentList()
-                    .title('الكرييب')
-                    .schemaType('menuItem')
-                    .filter('_type == "menuItem" && category == "الكرييب"')
+                  S.list()
+                    .title('أقسام المنيو (Menu Sections)')
+                    .items([
+                      S.listItem()
+                        .title('الفطار (Breakfast)')
+                        .child(
+                          S.documentList()
+                            .title('الفطار')
+                            .schemaType('menuItem')
+                            .filter('_type == "menuItem" && category == "الفطار"')
+                        ),
+                      S.listItem()
+                        .title('السندوتشات (Sandwiches)')
+                        .child(
+                          S.documentList()
+                            .title('السندوتشات')
+                            .schemaType('menuItem')
+                            .filter('_type == "menuItem" && category == "السندوتشات"')
+                        ),
+                      S.listItem()
+                        .title('الكرييب (Crepes)')
+                        .child(
+                          S.documentList()
+                            .title('الكرييب')
+                            .schemaType('menuItem')
+                            .filter('_type == "menuItem" && category == "الكرييب"')
+                        ),
+                      S.listItem()
+                        .title('الوجبات (Meals)')
+                        .child(
+                          S.documentList()
+                            .title('الوجبات')
+                            .schemaType('menuItem')
+                            .filter('_type == "menuItem" && category == "الوجبات"')
+                        ),
+                      S.listItem()
+                        .title('البيتزا (Pizza)')
+                        .child(
+                          S.documentList()
+                            .title('البيتزا')
+                            .schemaType('menuItem')
+                            .filter('_type == "menuItem" && category == "البيتزا"')
+                        ),
+                    ])
                 ),
+              
+              S.divider(),
+              
+              // All Menu Items (Fallback)
               S.listItem()
-                .title('الوجبات (Meals)')
+                .title('كل الأطباق (All Menu Items)')
                 .child(
-                  S.documentList()
-                    .title('الوجبات')
-                    .schemaType('menuItem')
-                    .filter('_type == "menuItem" && category == "الوجبات"')
-                ),
-              S.listItem()
-                .title('البيتزا (Pizza)')
-                .child(
-                  S.documentList()
-                    .title('البيتزا')
-                    .schemaType('menuItem')
-                    .filter('_type == "menuItem" && category == "البيتزا"')
+                  S.documentTypeList('menuItem')
+                    .title('كل الأطباق')
                 ),
             ])
-        ),
-      
-      S.divider(),
-      
-      // All Menu Items (Fallback)
-      S.listItem()
-        .title('كل الأطباق (All Menu Items)')
-        .child(
-          S.documentTypeList('menuItem')
-            .title('كل الأطباق')
-        ),
-      
-      S.divider(),
-
-      // Orders (الطلبات)
-      S.listItem()
-        .title('الطلبات (Orders)')
-        .child(
-          S.documentTypeList('order')
-            .title('الطلبات (Orders)')
         ),
     ])
 

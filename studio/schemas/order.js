@@ -60,18 +60,19 @@ export default {
     select: {
       orderNumber: 'orderNumber',
       customerName: 'customerName',
+      customerPhone: 'customerPhone',
       totalPrice: 'totalPrice',
-      status: 'status',
+      items: 'items',
     },
-    prepare({orderNumber, customerName, totalPrice, status}) {
-      const statusLabels = {
-        not_confirmed: 'غير مؤكد ⚠️',
-        paid: 'مدفوع 💰',
-        done: 'مكتمل ✓',
-      };
+    prepare({orderNumber, customerName, customerPhone, totalPrice, items}) {
+      // Format items to list inline cleanly in subtitle
+      let inlineItems = items ? items.trim().replace(/\n/g, ' ── ') : 'لا يوجد تفاصيل';
+      if (inlineItems.length > 60) {
+        inlineItems = inlineItems.substring(0, 57) + '...';
+      }
       return {
-        title: `طلب #${orderNumber || '????'} — ${customerName || 'بدون اسم'}`,
-        subtitle: `${totalPrice || 0} EGP — ${statusLabels[status] || status}`,
+        title: `طلب #${orderNumber || '????'} ── ${customerName || 'بدون اسم'} (${customerPhone || ''})`,
+        subtitle: `💰 ${totalPrice || 0} EGP ── ${inlineItems}`,
       }
     },
   },
