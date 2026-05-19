@@ -2,7 +2,7 @@
 const SANITY_PROJECT_ID = 'ksse299y';
 const SANITY_DATASET = 'production';
 const SANITY_API_VERSION = '2021-06-07';
-const SANITY_WRITE_TOKEN = ''; // Paste your Sanity API token (with WRITE editor access) here to save orders to the dashboard!
+const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9'; // Paste your Sanity API token (with WRITE editor access) here to save orders to the dashboard!
 
 function sanityQuery(query) {
     const encodedQuery = encodeURIComponent(query);
