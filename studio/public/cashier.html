@@ -335,6 +335,11 @@
             .tabs-container { grid-template-columns: 1fr; }
             header { flex-direction: column; gap: 10px; text-align: center; }
         }
+
+        .search-container input:focus {
+            border-color: var(--info) !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -368,6 +373,11 @@
         </button>
     </div>
 
+    <!-- Search Input Box -->
+    <div class="search-container" style="margin-bottom: 25px;">
+        <input type="text" id="search-input" placeholder="🔍 ابحث برقم الطلب أو رقم الهاتف أو اسم العميل..." oninput="handleSearch()" style="width: 100%; padding: 14px 20px; font-size: 1.15rem; font-family: 'Cairo', sans-serif; background-color: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); color: var(--text-main); outline: none; transition: border-color 0.25s, box-shadow 0.25s;">
+    </div>
+
     <!-- Orders Grid -->
     <div class="orders-grid" id="orders-grid">
         <div class="empty-state">
@@ -383,9 +393,15 @@
         const SANITY_WRITE_TOKEN = 'sky3A8Tg8i5MbEfvEdqM5MQ3GDW9iLrXpuWf1b1zFIHPvHsBFMV8G4oZ5xgD8cCrkNEQYcXDCB2IwRXlAygdhalYBkB541di2BB6w7VpJhYjKjPm4nQqLlLhM4xUOcrNuaG1U7Lj4RXfPj5zRkx2uRuU3A3Z9AFIldtqHMQsCCLWe52srfu9';
 
         let currentTab = 'not_confirmed';
+        let searchQuery = '';
         let cachedOrders = [];
         let knownOrderIds = new Set();
         let isInitialLoad = true;
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+            renderFilteredOrders();
+        }
 
         // Beautiful sound synthesizer when a new order appears
         function playChime() {
@@ -493,20 +509,32 @@
 
         function renderFilteredOrders() {
             const grid = document.getElementById('orders-grid');
-            const filtered = cachedOrders.filter(o => o.status === currentTab);
+            let filtered = cachedOrders.filter(o => o.status === currentTab);
+
+            if (searchQuery) {
+                filtered = filtered.filter(o => {
+                    const orderNumMatch = o.orderNumber && String(o.orderNumber).toLowerCase().includes(searchQuery.replace('#', ''));
+                    const phoneMatch = o.customerPhone && String(o.customerPhone).toLowerCase().includes(searchQuery);
+                    const nameMatch = o.customerName && String(o.customerName).toLowerCase().includes(searchQuery);
+                    return orderNumMatch || phoneMatch || nameMatch;
+                });
+            }
 
             if (filtered.length === 0) {
-                let emoji = '☕';
-                let message = 'لا توجد طلبات هنا حالياً.';
-                if (currentTab === 'not_confirmed') {
-                    emoji = '🛎️';
-                    message = 'لا توجد طلبات جديدة معلقة. رائع!';
-                } else if (currentTab === 'paid') {
-                    emoji = '🍳';
-                    message = 'المطبخ هادئ الآن. لا توجد طلبات تحت التحضير.';
-                } else if (currentTab === 'ready') {
-                    emoji = '🔔';
-                    message = 'كل الطلبات الجاهزة تم تسليمها للعملاء!';
+                let emoji = '🔍';
+                let message = searchQuery ? 'لا توجد طلبات تطابق بحثك.' : 'لا توجد طلبات هنا حالياً.';
+                if (!searchQuery) {
+                    emoji = '☕';
+                    if (currentTab === 'not_confirmed') {
+                        emoji = '🛎️';
+                        message = 'لا توجد طلبات جديدة معلقة. رائع!';
+                    } else if (currentTab === 'paid') {
+                        emoji = '🍳';
+                        message = 'المطبخ هادئ الآن. لا توجد طلبات تحت التحضير.';
+                    } else if (currentTab === 'ready') {
+                        emoji = '🔔';
+                        message = 'كل الطلبات الجاهزة تم تسليمها للعملاء!';
+                    }
                 }
                 
                 grid.innerHTML = `
