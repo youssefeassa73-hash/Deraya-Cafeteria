@@ -51,6 +51,12 @@ export default {
       rows: 4,
     },
     {
+      name: 'comments',
+      title: 'ملاحظات العميل (Customer Notes / Comments)',
+      type: 'text',
+      rows: 2,
+    },
+    {
       name: 'createdAt',
       title: 'تاريخ الطلب (Order Date & Time)',
       type: 'datetime',

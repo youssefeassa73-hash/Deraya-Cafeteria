@@ -281,12 +281,14 @@ window.closeCart = function() {
 window.processCheckout = async function() {
     if (cart.length === 0) return;
     
-    // Read and validate customer Name & Phone
+    // Read and validate customer Name, Phone, and optional Comments
     const nameInput = document.getElementById('cust-name');
     const phoneInput = document.getElementById('cust-phone');
+    const commentsInput = document.getElementById('cust-comments');
     
     const customerName = nameInput.value.trim();
     const customerPhone = phoneInput.value.trim();
+    const comments = commentsInput ? commentsInput.value.trim() : '';
     
     // Simple visual validation validation
     let isValid = true;
@@ -337,6 +339,14 @@ window.processCheckout = async function() {
         </div>
     `;
     
+    if (comments) {
+        receiptHTML += `
+            <div style="margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.5rem; text-align: right; font-size: 0.85rem; color: #b45309; background-color: #fffbeb; padding: 8px; border-radius: var(--radius);">
+                <strong>💡 ملاحظة العميل:</strong> ${comments}
+            </div>
+        `;
+    }
+    
     const receiptDetails = document.getElementById('receipt-details');
     receiptDetails.innerHTML = receiptHTML;
     document.getElementById('receipt-order-number').innerText = `#${orderNumber}`;
@@ -353,6 +363,7 @@ window.processCheckout = async function() {
                         customerName: customerName,
                         customerPhone: customerPhone,
                         items: itemsText,
+                        comments: comments, // Save custom special request comments to Sanity database!
                         totalPrice: grandTotal,
                         status: 'not_confirmed',
                         createdAt: new Date().toISOString()
@@ -394,7 +405,17 @@ window.downloadReceiptPDF = function() {
     const orderNum = document.getElementById('receipt-order-number').innerText;
     const name = document.getElementById('cust-name').value || 'عميل';
     const phone = document.getElementById('cust-phone').value || '';
+    const comments = document.getElementById('cust-comments').value.trim();
     const detailsHTML = document.getElementById('receipt-details').innerHTML;
+    
+    let commentsHTML = '';
+    if (comments) {
+        commentsHTML = `
+            <div style="text-align: right; font-size: 0.85rem; background-color: #fffbeb; border: 1px solid #fef3c7; padding: 8px; border-radius: 4px; margin-top: 8px; color: #b45309; line-height: 1.4;">
+                <strong>💡 ملاحظات خاصة:</strong> ${comments}
+            </div>
+        `;
+    }
     
     const printWindow = window.open('', '_blank', 'width=600,height=800');
     printWindow.document.write(`
@@ -471,6 +492,7 @@ window.downloadReceiptPDF = function() {
             <div class="cust-info">
                 <strong>العميل الكريم:</strong> ${name}<br>
                 <strong>رقم الجوال:</strong> ${phone}
+                ${commentsHTML}
             </div>
             <div class="details">
                 ${detailsHTML}
@@ -495,9 +517,11 @@ window.downloadReceiptPDF = function() {
 
 // Reset screen for a new order
 window.resetNewOrder = function() {
-    // Reset Name and Phone inputs
+    // Reset Name, Phone, and Comments inputs
     document.getElementById('cust-name').value = '';
     document.getElementById('cust-phone').value = '';
+    const commentsInput = document.getElementById('cust-comments');
+    if (commentsInput) commentsInput.value = '';
     
     document.getElementById('receipt-view').style.display = 'none';
     document.getElementById('cart-view').style.display = 'block';
