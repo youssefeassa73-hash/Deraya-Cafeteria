@@ -370,7 +370,11 @@
             const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}?query=${query}`;
             
             try {
-                const res = await fetch(url);
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${SANITY_WRITE_TOKEN}`
+                    }
+                });
                 const data = await res.json();
                 const orders = data.result || [];
                 
