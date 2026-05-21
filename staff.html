@@ -499,6 +499,8 @@
                         `;
                     }
                     
+                    const cleanItems = order.items ? order.items.replace(/\s*\(\s*(EGP\s*\d+|\d+\s*EGP)\s*\)/gi, '') : '';
+                    
                     const baseTime = order.readyAt ? new Date(order.readyAt) : (order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt));
                     const timeDiff = Math.round((new Date() - baseTime) / 60000);
                     const timeText = timeDiff <= 0 ? 'الآن' : `منذ ${timeDiff} دقيقة`;
